@@ -1,16 +1,48 @@
 ---
-
+// This is the "code fence". We'll put JavaScript here later.
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<section class="hero">
+  <div class="hero-content">
+    <h1>The Truth About Solar</h1>
+    <p>An honest, pro-consumer guide to buying rooftop solar in North Texas.</p>
+    <a href="#savings-tool" class="cta-button">Estimate Your Savings</a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    background-color: #f0f4f8; /* A light, clean background color */
+    padding: 6rem 1.5rem; /* Adds plenty of space around the content */
+    text-align: center; /* Centers the text */
+  }
+
+  .hero-content h1 {
+    font-size: 3rem; /* Large, impactful heading */
+    margin-bottom: 1rem;
+  }
+
+  .hero-content p {
+    font-size: 1.25rem; /* Readable subheading */
+    margin-bottom: 2rem;
+    max-width: 600px; /* Prevents the text from getting too wide */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background-color: #007bff; /* A nice blue color */
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none; /* Removes the underline from the link */
+    border-radius: 8px; /* Gives it slightly rounded corners */
+    transition: background-color 0.3s ease;
+  }
+
+  .cta-button:hover {
+    background-color: #0056b3; /* A darker blue for when you hover over it */
+  }
+</style>
