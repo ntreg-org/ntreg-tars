@@ -1,48 +1,48 @@
 ---
-// This is the "code fence". We'll put JavaScript here later.
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../layouts/layout.astro';
+import HeroSection from '../components/HeroSection.astro';
+
+// 4. This is the "fetch" logic!
+//    It calls the Storyblok API and asks for the "home" story.
+//    "version: 'draft'" is critical. It tells Storyblok to
+//    give us the "Saved" version, not the "Published" one.
+const sbApi = useStoryblokApi();
+const { data } = await sbApi.get("cdn/stories/home", {
+  version: "draft",
+});
+const story = data.story;
+
+// 5. This is our *temporary* safety step!
+//    Your "Home" story body has MANY blocks (intro, partners, etc.)
+//    but we have only built the component for the FIRST one.
+//    So, we'll get *only* the first block (index [0]) from the body.
+const heroBlok = story.content.body[0];
+
+// (Later, when all components are built, we'll replace this
+//  with a loop to render everything!)
 ---
 
-<section class="hero">
-  <div class="hero-content">
-    <h1>The Truth About Solar</h1>
-    <p>An honest, pro-consumer guide to buying rooftop solar in North Texas.</p>
-    <a href="#savings-tool" class="cta-button">Estimate Your Savings</a>
-  </div>
-</section>
+<!-- 
+  6. This is our page's HTML.
+     We wrap everything in the <Layout> component.
+-->
+<Layout title="NTREG - Home | The Truth About Rooftop Solar">
+  <main>
+    <!-- 
+      7. And here is the magic!
+         We are *manually* rendering our <HeroSection> component
+         and passing the data we fetched ("heroBlok") into its
+         "blok" prop.
+    -->
+    <HeroSection blok={heroBlok} />
 
-<style>
-  .hero {
-    background-color: #f0f4f8; /* A light, clean background color */
-    padding: 6rem 1.5rem; /* Adds plenty of space around the content */
-    text-align: center; /* Centers the text */
-  }
-
-  .hero-content h1 {
-    font-size: 3rem; /* Large, impactful heading */
-    margin-bottom: 1rem;
-  }
-
-  .hero-content p {
-    font-size: 1.25rem; /* Readable subheading */
-    margin-bottom: 2rem;
-    max-width: 600px; /* Prevents the text from getting too wide */
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .cta-button {
-    display: inline-block;
-    background-color: #007bff; /* A nice blue color */
-    color: white;
-    padding: 1rem 2rem;
-    font-size: 1rem;
-    font-weight: bold;
-    text-decoration: none; /* Removes the underline from the link */
-    border-radius: 8px; /* Gives it slightly rounded corners */
-    transition: background-color 0.3s ease;
-  }
-
-  .cta-button:hover {
-    background-color: #0056b3; /* A darker blue for when you hover over it */
-  }
-</style>
+    <!-- 
+      (Later, this will be a loop, like:
+       story.content.body.map(blok => <StoryblokComponent blok={blok} />) 
+      ...but we can't do that until all the component files are created,
+       or the site will crash!)
+    -->
+  </main>
+</Layout>

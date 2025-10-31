@@ -9,6 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@storyblok/astro": "^7.3.4",
     "astro": "^5.13.0"
   }
 }

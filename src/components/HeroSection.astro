@@ -1,0 +1,158 @@
+---
+// 1. We import the "storyblokEditable" function.
+// This is what makes your component "clickable" in the Storyblok editor.
+import { storyblokEditable } from "@storyblok/astro";
+
+// 2. We get the "blok" prop. This is the "data" for your hero
+// (headline_primary, body, etc.) that's coming from Storyblok.
+const { blok } = Astro.props;
+
+// 3. We get the URL for the background image.
+// Storyblok stores image URLs in the ".filename" property.
+const imageUrl = blok.background_image.filename;
+
+// 4. We get the URL for the scroll link.
+// Storyblok stores link URLs in the ".url" property (for external/URL links).
+const scrollLink = blok.scroll_prompt_link.url || "#";
+---
+
+<!-- 
+  5. This is the main HTML for the component.
+     The "style" attribute adds the background image inline.
+     The "storyblokEditable(blok)" makes this whole section
+     clickable in the Storyblok editor.
+-->
+<section
+  class="hero"
+  style={`background-image: url(${imageUrl});`}
+  {...storyblokEditable(blok)}
+>
+  <div class="hero-content">
+    <div class="hero-text">
+      <!-- 6. We render the main headline -->
+      <h1>{blok.headline_primary}</h1>
+
+      <!-- 
+        7. This is our "conditional" logic!
+           It means: "ONLY render this H2 tag if
+           blok.headline_highlight has content in it."
+           This is what lets us re-use this component on the 
+           "Questions" page, where that field will be blank!
+      -->
+      {
+        blok.headline_highlight && (
+          <h2 class="highlight">{blok.headline_highlight}</h2>
+        )
+      }
+    </div>
+
+    <!-- 8. This is the "What you need to know" text -->
+    {
+      blok.body && (
+        <div class="hero-body">
+          <p>{blok.body}</p>
+        </div>
+      )
+    }
+  </div>
+
+  <!-- 9. This is the "Continue Learning" scroll prompt -->
+  <a href={scrollLink} class="scroll-prompt">
+    {blok.scroll_prompt_text}
+    <!-- This is a simple CSS arrow -->
+    <div class="arrow">&darr;</div>
+  </a>
+</section>
+
+<!-- 
+  10. This is the CSS for the component.
+      It's "scoped," meaning it ONLY affects the HTML
+      in this file. This is just a starting point
+      based on your design.
+-->
+<style>
+  .hero {
+    /* Layout */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 90vh; /* Make it almost fullscreen */
+    padding: 2rem;
+    box-sizing: border-box; /* Makes padding behave nicely */
+
+    /* Background Image */
+    background-size: cover;
+    background-position: center;
+    background-color: #333; /* Fallback color */
+    color: white;
+
+    /* Positioning for text */
+    position: relative;
+  }
+
+  /* This adds a dark overlay so the white text is readable */
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+  }
+
+  /* This makes sure all our content sits ON TOP of the overlay */
+  .hero-content,
+  .scroll-prompt {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-content {
+    /* This pushes the text and body text apart */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .hero-text h1 {
+    font-size: 3rem; /* You can adjust this */
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .hero-text .highlight {
+    font-size: 2.5rem;
+    color: #ffd700; /* Placeholder for your gold color */
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .hero-body {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent box */
+    padding: 1rem;
+    border-radius: 8px;
+    max-width: 300px;
+  }
+
+  .hero-body p {
+    margin: 0;
+  }
+
+  .scroll-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  .scroll-prompt .arrow {
+    font-size: 1.5rem;
+    margin-top: 0.5rem;
+  }
+</style>
