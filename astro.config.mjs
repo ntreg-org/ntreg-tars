@@ -1,5 +1,8 @@
 import { defineConfig } from 'astro/config';
 import { storyblok } from  '@storyblok/astro';
+import { loadEnv } from 'vite';
+
+const env = loadEnv('', process.cwd(), 'STORYBLOK');
 
 // https://astro.build/config
 export default defineConfig({
@@ -7,10 +10,9 @@ export default defineConfig({
     storyblok({
       // 'accessToken' is the 'Preview' token from Storyblok
       // This will safely load your token from the .env file
-      accessToken: import.meta.env.STORYBLOK_TOKEN,
+      accessToken: env.STORYBLOK_TOKEN,
 
       // This tells the SDK where to find your Astro components
-      // We're pre-filling this based on our plan
       // 'blok_name_in_storyblok': 'path/to/YourComponent.astro'
       // IMPORTANT: The path does *not* include 'src/'
       components: {
@@ -49,9 +51,9 @@ export default defineConfig({
 
       // This helps Storyblok's Visual Editor find your site
       apiOptions: {
-        region: 'us' // Important: Change this to 'eu' if your Storyblok space is in Europe
-      }
-    })
-  ]
+        region: 'eu' // Important: Change this to 'eu' if your Storyblok space is in Europe
+      },
+    }),
+  ],
 });
 
