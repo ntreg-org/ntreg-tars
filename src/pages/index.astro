@@ -3,41 +3,15 @@ import { useStoryblokApi } from '@storyblok/astro';
 import Layout from '../layouts/layout.astro';
 import HeroSection from '../components/HeroSection.astro';
 
-//    This is the "fetch" logic!
-//    It calls the Storyblok API and asks for the "home" story.
-//    fetch drafts in dev, published in prod
 const storyblokApi = useStoryblokApi();
 const { data } = await storyblokApi.get('cdn/stories/home', {
   version: import.meta.env.DEV ? 'draft' : 'published',
 });
 const story = data.story;
 
-//    This is our *temporary* safety step!
-//    Your "Home" story body has MANY blocks (intro, partners, etc.)
-//    but we have only built the component for the FIRST one.
-//    So, we'll get *only* the first block (index [0]) from the body.
-const heroBlok = story.content.body[0];
-
-// (Later, when all components are built, we'll replace this
-//  with a loop to render everything!)
+const heroBlok = story?.content?.body?.[0];
 ---
 
-<!-- 
-  6. This is our page's HTML.
-     We wrap everything in the <Layout> component.
--->
 <Layout title="NTREG - Home | The Truth About Residential Solar">
-    <!-- 
-         *Manually* rendering our <HeroSection> component
-         and passing the data we fetched ("heroBlok") into its
-         "blok" prop.
-    -->
-    <HeroSection blok={heroBlok} />
-
-    <!-- 
-      (Later, this will be a loop, like:
-       story.content.body.map(blok => <StoryblokComponent blok={blok} />) 
-      ...but we can't do that until all the component files are created,
-       or the site will crash!)
-    -->
+  {heroBlok && <HeroSection blok={heroBlok} />}
 </Layout>

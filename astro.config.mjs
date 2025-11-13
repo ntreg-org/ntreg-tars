@@ -2,6 +2,8 @@ import { defineConfig } from 'astro/config';
 import { storyblok } from  '@storyblok/astro';
 import { loadEnv } from 'vite';
 
+import tailwindcss from '@tailwindcss/vite';
+
 const env = loadEnv('', process.cwd(), 'STORYBLOK');
 
 // https://astro.build/config
@@ -23,7 +25,7 @@ export default defineConfig({
         introduction_section: 'components/IntroductionSection',
         partner_logo_section: 'components/PartnerLogoSection',
         partner_logo: 'components/PartnerLogo',
-        benefits_carousel_section: 'components/BeneftisCarouselSection',
+        benefits_carousel_section: 'components/BenefitsCarouselSection',
         benefit_card: 'components/BenefitCard',
         tab_section: 'components/TabSection',
         tab_item: 'components/TabItem',
@@ -51,9 +53,12 @@ export default defineConfig({
 
       // This helps Storyblok's Visual Editor find your site
       apiOptions: {
-        region: 'eu' // Important: Change this to 'eu' if your Storyblok space is in Europe
+        region: env.STORYBLOK_REGION ?? 'eu', // Important: Change this to 'eu' if your Storyblok space is in Europe
       },
     }),
   ],
-});
 
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});

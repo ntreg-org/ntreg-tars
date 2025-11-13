@@ -1,48 +1,24 @@
 ---
-// 1. We're importing a special font ("Inter") from Google Fonts
-//    to make our site look more modern than the default.
-import "@fontsource/inter";
-
-// 2. We get the "title" prop from our page (e.g., "NTREG - Home")
-interface Props {
-  title: string;
-}
+import "../styles/global.css"; // brings in Tailwind and your font imports
 const { title } = Astro.props;
 ---
-
-<!-- 
-  3. This is the main HTML boilerplate for *every page*.
--->
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="NTREG - The Truth About Rooftop Solar" />
+    <meta name="description" content="NTREG - The Truth About Residential Solar" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
-  <body>
-    <!-- 
-      4. This <slot /> is the magic part.
-         It means "Insert all the page content
-         (like our <HeroSection>) right here."
-    -->
+  <body class="font-inter"> 
     <slot />
   </body>
 </html>
 
-<!-- 
-  5. This is global CSS. It applies to the *whole site*.
--->
 <style is:global>
-  :root {
-    /* Set the default font for the whole site */
-    font-family: "Inter", system-ui, sans-serif;
-  }
   body {
-    /* Remove default ugly browser margin */
     margin: 0;
-    background-color: #f8f8f8; /* A light gray background */
+    background-color: #f8f8f8;
   }
 </style>

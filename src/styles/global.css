@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import the fonts */
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+/* Set default fonts using CSS variables instead of @apply */
+@layer base {
+  :root {
+    --brand-highlight: #FFD365;
+    --font-inter: 'Inter', sans-serif;
+    --font-poppins: 'Poppins', sans-serif;
+  }
+  body {
+    font-family: var(--font-inter);
+  }
+  h1, h2 {
+    font-family: var(--font-poppins);
+    font-weight: 500;        /* Poppins Medium */
+    font-synthesis: none;    /* avoid fake bold/italic */
+  }
+}
+
+
+@layer utilities {
+
+  /* ------------------------------------------- */
+  /* 12-col page grid (Tailwind-safe for v4)     */
+  /* ------------------------------------------- */
+
+  .page-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 32px;
+    padding-inline: clamp(24px, 6vw, 280px);
+  }
+
+  @media (min-width: 1024px) {
+    .page-grid {
+      padding-inline: 108px;
+    }
+  }
+
+  /* ------------------------------------------- */
+  /* Hero Typography + Colors                    */
+  /* ------------------------------------------- */
+
+  .hero-type {
+    letter-spacing: -0.01em;
+  }
+
+  .hero-white { 
+    color: #fff !important; 
+  }
+
+  .text-brand-highlight { 
+    color: var(--brand-highlight) !important; 
+  }
+
+  .hero-subcopy { 
+    color: #ffffff !important; 
+    font: 500 16px/24px var(--font-inter);
+    max-width: 432px;
+  }
+
+  /* ------------------------------------------- */
+  /* “Continue Learning ↓” link                   */
+  /* ------------------------------------------- */
+
+  .hero-scroll {
+    font: 600 16px/24px var(--font-inter);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .hero-scroll:visited { color: #fff; }
+  .hero-scroll:hover   { opacity: 0.9; }
+
+  .hero-scroll:focus-visible {
+    outline: 2px solid rgb(255 255 255 / 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .hero-scroll__icon {
+    display: inline-block;
+    font-size: 16px;
+    line-height: 24px;
+    transform: translateY(2px);
+    animation: arrow-bob 2.4s infinite both;
+    animation-delay: 0.7s;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-scroll__icon { animation: none; }
+  }
+
+  @keyframes arrow-bob {
+    0% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.58, 1);
+    }
+    45% {
+      transform: translateY(8px);
+      animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  /* ------------------------------------------- */
+  /* Responsive Type Scaling                     */
+  /* ------------------------------------------- */
+
+  @media (min-width: 1024px) {
+    .hero-type {
+      font-size: 96px;
+      line-height: 40px;
+    }
+    .hero-subcopy {
+      max-width: 100%;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .hero-type {
+      font-size: 64px;
+      line-height: 24px;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .hero-type {
+      font-size: 40px;
+      line-height: 16px;
+    }
+  }
+
+}
