@@ -1,0 +1,157 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+// Safe field fallbacks
+const image = blok?.image;
+const name = blok?.name ?? '';
+const title = blok?.title ?? '';
+const body = blok?.body ?? '';
+const buttonText = blok?.button_text ?? 'Read Full Letter';
+
+const modalImage = blok?.modal_image;
+const modalBodyHtml = blok?.modal_body ? renderRichText(blok.modal_body) : '';
+
+const modalTitleId = `intro-modal-title-${blok?._uid ?? 'card'}`;
+---
+
+<article
+  class="intro-card"
+  {...storyblokEditable(blok)}
+  data-intro-card
+>
+  <!-- LEFT: Photo -->
+  {image?.filename && (
+    <figure class="intro-card__media">
+      <img
+        src={image.filename}
+        alt={image.alt ?? name}
+        loading="lazy"
+      />
+    </figure>
+  )}
+
+  <!-- RIGHT: Grey card content -->
+  <div class="intro-card__body">
+    {body && (
+      <p class="intro-card__quote text-body-sm text-grey-80">
+        {body}
+      </p>
+    )}
+
+    {name && (
+      <p class="intro-card__name text-body-sm text-grey-80">
+        {name}
+      </p>
+    )}
+
+    {title && (
+      <p class="intro-card__meta text-fine text-grey-70">
+        {title}
+      </p>
+    )}
+
+    <button
+      type="button"
+      class="intro-card__button text-button-primary"
+      data-intro-open
+    >
+      {buttonText}
+    </button>
+  </div>
+
+  <!-- Modal (hidden by default) -->
+  <div
+    class="intro-modal-backdrop"
+    data-intro-backdrop
+    hidden
+    aria-hidden="true"
+  >
+    <div
+      class="intro-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={modalTitleId}
+    >
+      <button
+        type="button"
+        class="intro-modal__close"
+        data-intro-close
+        aria-label="Close letter"
+      >
+        ×
+      </button>
+
+      <div class="intro-modal__content">
+        {modalImage?.filename && (
+          <figure class="intro-modal__media">
+            <img
+              src={modalImage.filename}
+              alt={modalImage.alt ?? name}
+              loading="lazy"
+            />
+          </figure>
+        )}
+
+        <div class="intro-modal__body">
+          {name && (
+            <h3 id={modalTitleId} class="intro-modal__name">
+              {name}
+            </h3>
+          )}
+
+          {title && (
+            <p class="intro-modal__title text-fine text-grey-70">
+              {title}
+            </p>
+          )}
+
+          {modalBodyHtml && (
+            <div
+              class="intro-modal__richtext text-body-sm text-grey-80"
+              set:html={modalBodyHtml}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-intro-card]').forEach((card) => {
+      const openBtn = card.querySelector('[data-intro-open]');
+      const closeBtn = card.querySelector('[data-intro-close]');
+      const backdrop = card.querySelector('[data-intro-backdrop]');
+
+      if (!openBtn || !closeBtn || !backdrop) return;
+
+      const openModal = () => {
+        backdrop.hidden = false;
+        backdrop.setAttribute('aria-hidden', 'false');
+      };
+
+      const closeModal = () => {
+        backdrop.hidden = true;
+        backdrop.setAttribute('aria-hidden', 'true');
+      };
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+
+      backdrop.addEventListener('click', (event) => {
+        if (event.target === backdrop) {
+          closeModal();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeModal();
+        }
+      });
+    });
+  });
+</script>

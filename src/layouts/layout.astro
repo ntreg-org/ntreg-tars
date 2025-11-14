@@ -1,17 +1,24 @@
 ---
-import "../styles/global.css"; // brings in Tailwind and your font imports
-const { title } = Astro.props;
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+
+const { title, navBlok } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="NTREG - The Truth About Residential Solar" />
+    <meta
+      name="description"
+      content="NTREG - The Truth About Residential Solar"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
-  <body class="font-inter"> 
+  <body class="font-inter">
+    {navBlok && <Nav blok={navBlok} />}
+
     <slot />
   </body>
 </html>

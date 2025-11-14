@@ -1,0 +1,35 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import IntroductionCard from './IntroductionCard.astro';
+
+const { blok } = Astro.props;
+
+// Safe data guards
+const headline: string = blok?.headline ?? '';
+const cards = Array.isArray(blok?.people_cards) ? blok.people_cards : [];
+---
+
+<section
+  class="intro-section py-24 md:py-32"
+  {...storyblokEditable(blok)}
+>
+  {/* Heading + divider */}
+  <div class="page-grid">
+    {headline && (
+      <header class="col-span-12">
+        <h2 class="text-h2 text-brand-primary mb-6">
+          {headline}
+        </h2>
+
+        <div class="intro-divider"></div>
+      </header>
+    )}
+  </div>
+
+  {/* Cards */}
+  <div class="page-grid intro-grid gap-y-16 md:gap-y-20">
+    {cards.map((card: any) => (
+      <IntroductionCard blok={card} />
+    ))}
+  </div>
+</section>

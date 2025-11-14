@@ -1,0 +1,29 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+export interface NavLinkBlok {
+  _uid: string;
+  component: string;
+  text?: string;
+  link?: {
+    url?: string;
+    cached_url?: string;
+  };
+}
+
+const { blok } = Astro.props;
+
+const label = blok?.text ?? '';
+const href =
+  blok?.link?.url ??
+  blok?.link?.cached_url ??
+  '#';
+---
+
+<a
+  href={href}
+  class="nav-link"
+  {...storyblokEditable(blok)}
+>
+  {label}
+</a>

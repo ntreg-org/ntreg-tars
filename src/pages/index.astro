@@ -1,17 +1,40 @@
 ---
 import { useStoryblokApi } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
+
 import Layout from '../layouts/layout.astro';
 import HeroSection from '../components/HeroSection.astro';
+import IntroductionSection from '../components/IntroductionSection.astro';
 
 const storyblokApi = useStoryblokApi();
-const { data } = await storyblokApi.get('cdn/stories/home', {
-  version: import.meta.env.DEV ? 'draft' : 'published',
-});
-const story = data.story;
+const version = import.meta.env.DEV ? 'draft' : 'published';
 
-const heroBlok = story?.content?.body?.[0];
+// Fetch home + global nav
+const [{ data: homeData }, { data: navData }] = await Promise.all([
+  storyblokApi.get('cdn/stories/home', { version }),
+  storyblokApi.get('cdn/stories/global-nav', { version }),
+]);
+
+const homeStory = homeData.story;
+const navStory = navData.story;
+
+// All blocks on the home page
+const body: SbBlokData[] = homeStory?.content?.body ?? [];
+
+// Only pick the blocks we have components for *right now*
+const heroBlok = body.find((blok) => blok.component === 'hero_section');
+const introBlok = body.find(
+  (blok) => blok.component === 'introduction_section',
+);
+
+const navBlok = navStory?.content;
 ---
 
-<Layout title="NTREG - Home | The Truth About Residential Solar">
+<Layout
+  title="NTREG - Home | The Truth About Residential Solar"
+  navBlok={navBlok}
+>
   {heroBlok && <HeroSection blok={heroBlok} />}
+
+  {introBlok && <IntroductionSection blok={introBlok} />}
 </Layout>

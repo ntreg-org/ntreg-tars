@@ -1,0 +1,98 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+type StoryblokLinkField = {
+  url?: string;
+  cached_url?: string;
+};
+
+type NavLinkBlok = {
+  _uid: string;
+  text?: string;
+  link?: StoryblokLinkField;
+};
+
+const { blok } = Astro.props;
+
+// Logo
+const logoUrl = blok?.logo?.filename ?? '';
+const logoAlt = blok?.logo?.alt ?? 'NTREG';
+
+// Nav links from nested blocks
+const links: NavLinkBlok[] = Array.isArray(blok?.nav_links)
+  ? blok.nav_links
+  : [];
+
+// PDF link (from asset)
+const pdfLabel = blok?.pdf_text ?? 'PDF';
+const pdfHref = blok?.pdf_file?.filename ?? '#';
+
+// Donate button
+const donateLabel = blok?.button_text ?? 'Donate';
+const donateHref =
+  blok?.button_link?.url ??
+  blok?.button_link?.cached_url ??
+  '#';
+---
+
+<header
+  class="fixed inset-x-0 top-0 z-20"
+  {...storyblokEditable(blok)}
+>
+  <div class="nav-shell">
+    <div class="page-grid">
+      <div class="nav-bar">
+        <!-- Left: Logo -->
+        <a
+          href="/"
+          class="nav-logo-wrapper flex items-center shrink-0"
+          aria-label="NTREG home"
+        >
+          {logoUrl && (
+            <img
+              src={logoUrl}
+              alt={logoAlt}
+              class="nav-logo-img"
+              loading="lazy"
+            />
+          )}
+        </a>
+
+        <!-- Center: Navigation Links -->
+        <nav class="nav-center">
+          {links.map((item) => {
+            const label = item?.text ?? '';
+            const href =
+              item?.link?.url ??
+              item?.link?.cached_url ??
+              '#';
+
+            if (!label) return null;
+
+            return (
+              <a
+                href={href}
+                class="nav-link"
+                data-blok-uid={item._uid}
+              >
+                {label}
+              </a>
+            );
+          })}
+        </nav>
+
+        <!-- Right: PDF + Donate -->
+        <div class="nav-right">
+          <a href={pdfHref} class="nav-link inline-flex items-center gap-1">
+            <span>{pdfLabel}</span>
+            <span aria-hidden="true">⬇︎</span>
+          </a>
+
+          <a href={donateHref} class="nav-cta">
+            {donateLabel}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

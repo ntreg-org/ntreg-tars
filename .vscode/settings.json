@@ -1,5 +1,12 @@
 {
   "files.associations": {
     "*.css": "tailwindcss"
+  },
+
+  "codex.ignoreFiles": ["**/.env", "**/.env.*"],
+
+  "files.exclude": {
+    "**/.env": true,
+    "**/.env.*": true
   }
 }
