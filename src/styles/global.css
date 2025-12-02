@@ -239,7 +239,7 @@
   }
 
   .text-brand-on-dark {
-    color: var(--white-90);
+    color: var(--brand-text-inverse);
   }
 
   .text-brand-on-light {
@@ -863,5 +863,202 @@
     height: 52px;
     object-fit: contain;
     display: block;
+  }
+
+  /* ------------------------------------------- */
+  /* Benefits carousel section                   */
+  /* ------------------------------------------- */
+
+  .benefits-carousel-section {
+    color: var(--white-90);
+  }
+
+  .benefits-carousel__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-8); /* 32px between text and arrows on desktop/tablet */
+  }
+
+  .benefits-carousel__header-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-8); /* 32px between headline and body */
+    row-gap: 0;
+    max-width: 960px;
+  }
+
+  /* Mobile: stack headline & body */
+  @media (max-width: 767.98px) {
+    .benefits-carousel__header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .benefits-carousel__header-grid {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--space-8); /* 32px between headline and body */
+    }
+  }
+
+  .benefits-carousel__headline {
+    margin: 0;
+    font-family: var(--font-poppins);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    font-size: 1.5rem; /* text-h3 size on mobile/tablet */
+    line-height: 1.25;
+  }
+
+  @media (min-width: 1024px) {
+    /* Desktop: match text-h2 scale */
+    .benefits-carousel__headline {
+      font-size: 3rem; /* 48px */
+      line-height: 1.2;
+    }
+  }
+
+  .benefits-carousel__body {
+    /* text-body-sm on mobile/tablet */
+    font-family: var(--font-inter);
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  @media (min-width: 1024px) {
+    /* text-body-md on desktop */
+    .benefits-carousel__body {
+      font-size: 1.125rem; /* 18px */
+    }
+  }
+
+  /* Carousel nav buttons */
+  .benefits-carousel__nav-group {
+    display: inline-flex;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .benefits-carousel__nav {
+    width: 48px;
+    height: 48px;
+    border-radius: 0;
+    border: none;
+    padding: 0;
+    background-color: var(--blue-12);
+    color: var(--white-90);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.25rem;
+  }
+
+  .benefits-carousel__nav:hover {
+    opacity: 0.9;
+  }
+
+  .benefits-carousel__nav:focus-visible {
+    outline: 2px solid var(--white-80);
+    outline-offset: 2px;
+  }
+
+  /* Hide nav buttons on mobile */
+  @media (max-width: 767.98px) {
+    .benefits-carousel__nav-group {
+      display: none;
+    }
+  }
+
+  /* Carousel track + cards */
+  .benefits-carousel__viewport {
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--space-4); /* breathing room for scrollbar */
+  }
+
+  .benefits-carousel__track {
+    display: flex;
+    gap: var(--space-8); /* 32px between cards */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .benefits-card {
+    background-color: var(--blue-12);
+    color: var(--white-90);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--space-8);
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 230px;
+    height: 292px;
+  }
+
+  @media (min-width: 1024px) {
+    .benefits-card {
+      width: 282px;
+      height: 424px;
+    }
+  }
+
+  .benefits-card__body {
+    flex: 1;
+    display: flex;
+  }
+
+  .benefits-card__copy {
+    margin: 0;
+    font-family: var(--font-inter);
+    font-weight: 400;
+    font-size: 1rem; /* text-body-sm baseline */
+    line-height: 1.5;
+  }
+
+  @media (min-width: 1024px) {
+    .benefits-card__copy {
+      font-size: 1.125rem; /* text-body-md on desktop */
+    }
+  }
+
+  .benefits-card__image-wrap {
+    margin-top: var(--space-6);
+    height: 96px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  @media (min-width: 1024px) {
+    .benefits-card__image-wrap {
+      height: 128px;
+    }
+  }
+
+  .benefits-card__image {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Source text */
+  .benefits-carousel__source {
+    margin-top: 0;
+  }
+
+  .benefits-carousel__source-text {
+    color: var(--white-50);
+  }
+
+  .benefits-carousel__source-text a {
+    text-decoration: underline;
+    color: inherit;
   }
 }

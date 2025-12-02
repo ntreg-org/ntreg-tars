@@ -25,6 +25,8 @@ export default defineConfig({
         introduction_section: "components/IntroductionSection",
         partner_logo_section: "components/PartnerLogoSection",
         partner_logo: "components/PartnerLogo",
+        benefits_carousel_section: "components/BenefitsCarouselSection",
+        benefit_card: "components/BenefitCard",
       },
 
       // This helps Storyblok's Visual Editor find your site

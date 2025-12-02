@@ -1,0 +1,138 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { renderRichText } from '@storyblok/js';
+import BenefitCard from './BenefitCard.astro';
+
+const { blok } = Astro.props;
+
+const headline = blok?.headline ?? '';
+const cards = Array.isArray(blok?.benefit_cards) ? blok.benefit_cards : [];
+const headingId = `benefits-carousel-heading-${blok._uid}`;
+const carouselId = `benefits-carousel-${blok._uid}`;
+---
+
+<section
+  class="benefits-carousel-section bg-brand-primary py-section"
+  aria-labelledby={headline ? headingId : undefined}
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid">
+    {/* Header row: headline + body */}
+    <header class="col-span-12 benefits-carousel__header">
+      <div class="benefits-carousel__header-grid">
+        {headline && (
+          <h2
+            id={headingId}
+            class="benefits-carousel__headline text-brand-highlight"
+          >
+            {headline}
+          </h2>
+        )}
+
+        {blok.body && (
+          <div
+            class="benefits-carousel__body text-brand-on-dark"
+            set:html={renderRichText(blok.body)}
+          />
+        )}
+      </div>
+
+      {/* Carousel nav buttons (hidden on mobile via CSS) */}
+      <div class="benefits-carousel__nav-group" aria-hidden="true">
+        <button
+          type="button"
+          class="benefits-carousel__nav benefits-carousel__nav--prev"
+          aria-label="Scroll benefits to the left"
+        >
+          ←
+        </button>
+        <button
+          type="button"
+          class="benefits-carousel__nav benefits-carousel__nav--next"
+          aria-label="Scroll benefits to the right"
+        >
+          →
+        </button>
+      </div>
+    </header>
+
+    {/* Spacer between header and cards */}
+    <div class="col-span-12 space-block-md" aria-hidden="true"></div>
+
+    {/* Carousel */}
+    {cards.length > 0 && (
+      <div
+        class="col-span-12 benefits-carousel"
+        id={carouselId}
+        data-carousel-id={blok._uid}
+      >
+        <div class="benefits-carousel__viewport" tabindex="0">
+          <ul
+            class="benefits-carousel__track"
+            aria-label="Benefits of rooftop solar"
+          >
+            {cards.map((card: any) => (
+              <BenefitCard blok={card} />
+            ))}
+          </ul>
+        </div>
+      </div>
+    )}
+
+    {/* Source text */}
+    {blok.source && (
+      <div class="col-span-12 space-block-md" aria-hidden="true"></div>
+    )}
+
+    {blok.source && (
+      <footer class="col-span-12 benefits-carousel__source">
+        <p
+          class="benefits-carousel__source-text text-fine"
+          set:html={renderRichText(blok.source)}
+        />
+      </footer>
+    )}
+  </div>
+</section>
+
+<!-- Carousel behaviour -->
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const root = document.querySelector('[data-carousel-id="${blok._uid}"]');
+    if (!root) return;
+
+    const viewport = root.querySelector('.benefits-carousel__viewport');
+    const track = root.querySelector('.benefits-carousel__track');
+    const prevBtn = document.querySelector(
+      '#${carouselId} .benefits-carousel__nav--prev'
+    );
+    const nextBtn = document.querySelector(
+      '#${carouselId} .benefits-carousel__nav--next'
+    );
+
+    if (!viewport || !track || !prevBtn || !nextBtn) return;
+
+    const getScrollAmount = () => {
+      const firstCard = track.querySelector('.benefits-card');
+      if (!firstCard) return viewport.clientWidth;
+      const style = window.getComputedStyle(firstCard);
+      const gapRight = parseFloat(style.marginRight) || 0;
+      const width = firstCard.getBoundingClientRect().width;
+      return width + gapRight;
+    };
+
+    prevBtn.addEventListener('click', () => {
+      viewport.scrollBy({
+        left: -getScrollAmount(),
+        behavior: 'smooth',
+      });
+    });
+
+    nextBtn.addEventListener('click', () => {
+      viewport.scrollBy({
+        left: getScrollAmount(),
+        behavior: 'smooth',
+      });
+    });
+  });
+</script>

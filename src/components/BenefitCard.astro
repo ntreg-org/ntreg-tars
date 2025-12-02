@@ -1,0 +1,28 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const body = blok?.body ?? '';
+const image = blok?.image;
+const altText = image?.alt || 'Benefit illustration';
+---
+
+<li class="benefits-card partner-logos__item" {...storyblokEditable(blok)}>
+  <div class="benefits-card__body text-brand-on-dark">
+    <p class="benefits-card__copy">
+      {body}
+    </p>
+  </div>
+
+  {image && (
+    <div class="benefits-card__image-wrap" aria-hidden="true">
+      <img
+        src={image.filename}
+        alt={altText}
+        class="benefits-card__image"
+        loading="lazy"
+      />
+    </div>
+  )}
+</li>
