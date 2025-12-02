@@ -196,18 +196,18 @@
     gap: var(--space-20);
   }
 
-  /* Vertical spacing blocks */
+  /* Vertical spacing above a block */
   .space-block-sm {
-    height: var(--space-8);
+    margin-top: var(--space-8);
   }
   .space-block-md {
-    height: var(--space-12);
+    margin-top: var(--space-12);
   }
   .space-block-lg {
-    height: var(--space-20);
+    margin-top: var(--space-20);
   }
   .space-block-xl {
-    height: var(--space-32);
+    margin-top: var(--space-32);
   }
 
   /* ------------------------------------------- */
@@ -418,6 +418,12 @@
       padding-inline: 108px;
     }
   }
+
+  /* ------------------------------------------- */
+  /* ------------------------------------------- */
+  /* CONTENT SPECIFIC STYLES -------------------------- */
+  /* ------------------------------------------- */
+  /* ------------------------------------------- */
 
   /* ------------------------------------------- */
   /* Hero Typography + Colors                    */
@@ -814,5 +820,48 @@
   .intro-modal__close:focus-visible {
     outline: 2px solid #ffffff;
     outline-offset: 2px;
+  }
+
+  /* ------------------------------------------- */
+  /* Partner logo section                        */
+  /* ------------------------------------------- */
+
+  .partner-logo-section__header {
+    text-align: center;
+  }
+
+  .partner-logo-section__headline {
+    /* Already using text-body-sm-strong + text-brand-primary */
+    margin: 0;
+  }
+
+  .partner-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-16); /* mobile: 16 = 64px */
+    list-style: none;
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    .partner-logos {
+      gap: var(--space-28); /* tablet/desktop: 28 = 112px */
+    }
+  }
+
+  .partner-logos__item {
+    display: flex;
+  }
+
+  .partner-logos__link {
+    display: inline-flex;
+  }
+
+  .partner-logos__image {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    display: block;
   }
 }

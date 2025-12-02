@@ -5,6 +5,7 @@ import type { SbBlokData } from '@storyblok/astro';
 import Layout from '../layouts/layout.astro';
 import HeroSection from '../components/HeroSection.astro';
 import IntroductionSection from '../components/IntroductionSection.astro';
+import PartnerLogoSection from '../components/PartnerLogoSection.astro';
 
 const storyblokApi = useStoryblokApi();
 const version = import.meta.env.DEV ? 'draft' : 'published';
@@ -22,9 +23,12 @@ const navStory = navData.story;
 const body: SbBlokData[] = homeStory?.content?.body ?? [];
 
 // Only pick the blocks we have components for *right now*
-const heroBlok = body.find((blok) => blok.component === 'hero_section');
+const heroBlok = body.find(
+  (blok) => blok.component === 'hero_section');
 const introBlok = body.find(
-  (blok) => blok.component === 'introduction_section',
+  (blok) => blok.component === 'introduction_section');
+const partnerlogoBlok = body.find(
+  (blok) => blok.component === 'partner_logo_section',  
 );
 
 const navBlok = navStory?.content;
@@ -35,6 +39,7 @@ const navBlok = navStory?.content;
   navBlok={navBlok}
 >
   {heroBlok && <HeroSection blok={heroBlok} />}
-
   {introBlok && <IntroductionSection blok={introBlok} />}
+  {partnerlogoBlok && <PartnerLogoSection blok={partnerlogoBlok} />}
+
 </Layout>

@@ -1,0 +1,50 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const name = blok?.name ?? '';
+const image = blok?.image;
+const link = blok?.link;
+
+// Support both Storyblok link object and plain string URL
+const url =
+  typeof link === 'string'
+    ? link
+    : link && typeof link === 'object'
+    ? link.url
+    : undefined;
+
+const altText = name || image?.alt || 'Partner logo';
+---
+
+<li class="partner-logos__item" {...storyblokEditable(blok)}>
+  {image && url && (
+    <a
+      href={url}
+      class="partner-logos__link"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src={image.filename}
+        alt={altText}
+        class="partner-logos__image"
+        loading="lazy"
+        width="52"
+        height="52"
+      />
+    </a>
+  )}
+
+  {image && !url && (
+    <img
+      src={image.filename}
+      alt={altText}
+      class="partner-logos__image"
+      loading="lazy"
+      width="52"
+      height="52"
+    />
+  )}
+</li>

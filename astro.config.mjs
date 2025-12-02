@@ -23,6 +23,8 @@ export default defineConfig({
         nav_link: "components/NavLink",
         introduction_card: "components/IntroductionCard",
         introduction_section: "components/IntroductionSection",
+        partner_logo_section: "components/PartnerLogoSection",
+        partner_logo: "components/PartnerLogo",
       },
 
       // This helps Storyblok's Visual Editor find your site

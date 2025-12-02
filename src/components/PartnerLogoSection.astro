@@ -1,0 +1,41 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import PartnerLogo from './PartnerLogo.astro';
+
+
+const { blok } = Astro.props;
+
+const headline = blok?.headline ?? '';
+const logos = Array.isArray(blok?.logos) ? blok.logos : [];
+
+const headingId = `partner-logos-heading-${blok._uid}`;
+---
+
+<section
+  class="partner-logo-section py-section"
+  aria-labelledby={headline ? headingId : undefined}
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid">
+    {/* Headline */}
+    {headline && (
+      <header class="col-span-12 partner-logo-section__header">
+        <h2
+          id={headingId}
+          class="partner-logo-section__headline text-body-sm-strong text-brand-primary"
+        >
+          {headline}
+        </h2>
+      </header>
+    )}
+
+    {/* Logos row */}
+    {logos.length > 0 && (
+        <ul class="partner-logos col-span-12 space-block-md" aria-label="Partner logos">
+          {logos.map((logo: any) => (
+            <PartnerLogo blok={logo} />
+          ))}
+        </ul>
+    )}
+  </div>
+</section>
