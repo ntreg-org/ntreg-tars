@@ -29,6 +29,8 @@ export default defineConfig({
         benefit_card: "components/BenefitCard",
         tab_section: "components/TabSection",
         tab_item: "components/TabItem",
+        candidate_section: "components/CandidateSection",
+        checklist_item: "components/ChecklistItem",
       },
 
       // This helps Storyblok's Visual Editor find your site
