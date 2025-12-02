@@ -7,7 +7,7 @@ import HeroSection from '../components/HeroSection.astro';
 import IntroductionSection from '../components/IntroductionSection.astro';
 import PartnerLogoSection from '../components/PartnerLogoSection.astro';
 import BenefitsCarouselSection from '../components/BenefitsCarouselSection.astro';
-
+import TabSection from '../components/TabSection.astro';
 
 
 const storyblokApi = useStoryblokApi();
@@ -34,7 +34,8 @@ const partnerlogoBlok = body.find(
   (blok) => blok.component === 'partner_logo_section');
 const benefitsBlok = body.find(
   (blok) => blok.component === 'benefits_carousel_section');
-
+const tabBlok = body.find(
+  (blok) => blok.component === 'tab_section');
 
 const navBlok = navStory?.content;
 ---
@@ -47,5 +48,6 @@ const navBlok = navStory?.content;
   {introBlok && <IntroductionSection blok={introBlok} />}
   {partnerlogoBlok && <PartnerLogoSection blok={partnerlogoBlok} />}
   {benefitsBlok && <BenefitsCarouselSection blok={benefitsBlok} />}
+  {tabBlok && <TabSection blok={tabBlok} />}
 
 </Layout>

@@ -1,0 +1,27 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { renderRichText } from '@storyblok/js';
+
+const { blok } = Astro.props;
+
+const image = blok?.image;
+const altText = (image && image.alt) || 'Tab illustration';
+---
+
+<div class="tab-section__panel-inner" {...storyblokEditable(blok)}>
+  {image && (
+    <div class="tab-section__panel-media">
+      <img
+        src={image.filename}
+        alt={altText}
+        class="tab-section__panel-image"
+        loading="lazy"
+      />
+    </div>
+  )}
+
+  <div
+    class="tab-section__panel-body text-body-sm text-brand-on-light"
+    set:html={renderRichText(blok.body)}
+  />
+</div>

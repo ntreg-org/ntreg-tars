@@ -1,0 +1,163 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { renderRichText } from '@storyblok/js';
+import TabItem from '../components/TabItem.astro';
+
+const { blok } = Astro.props;
+
+const headline = blok?.headline || '';
+const tabs = Array.isArray(blok?.tabs) ? blok.tabs : [];
+const bodyLeft = blok?.body_left || '';
+const bodyRight = blok?.body_right || '';
+---
+
+<section
+  class="tab-section py-section"
+  data-tab-section
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid">
+    {/* Intro: headline + two body columns */}
+    <header class="col-span-12 tab-section__intro">
+      {headline && (
+        <h2 class="tab-section__headline text-brand-primary">
+          {headline}
+        </h2>
+      )}
+
+      <div class="tab-section__intro-bodies">
+        {bodyLeft && (
+          <p class="tab-section__body-left text-body-md text-brand-on-light">
+            {bodyLeft}
+          </p>
+        )}
+        {bodyRight && (
+          <p class="tab-section__body-right text-body-md text-brand-on-light">
+            {bodyRight}
+          </p>
+        )}
+      </div>
+    </header>
+
+    {/* Tabs row */}
+    {tabs.length > 0 && (
+      <div class="col-span-12 tab-section__tabs">
+        <div
+          class="tab-section__tab-list"
+          role="tablist"
+          aria-label="Solar considerations"
+        >
+          {tabs.map((tab: any, index: number) => (
+            <button
+              type="button"
+              class={`tab-section__tab ${
+                index === 0
+                  ? 'tab-section__tab--active text-button-primary text-brand-primary'
+                  : 'text-body-sm-strong text-grey-70'
+              }`}
+              role="tab"
+              aria-selected={index === 0 ? 'true' : 'false'}
+              aria-controls={`tab-panel-${blok._uid}-${tab._uid}`}
+              id={`tab-${blok._uid}-${tab._uid}`}
+              data-tab-target={`tab-panel-${blok._uid}-${tab._uid}`}
+              tabindex={index === 0 ? 0 : -1}
+            >
+              {tab.title}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Panels */}
+    {tabs.length > 0 && (
+      <div class="col-span-12 tab-section__panels">
+        {tabs.map((tab: any, index: number) => (
+          <section
+            id={`tab-panel-${blok._uid}-${tab._uid}`}
+            class={`tab-section__panel${
+              index === 0 ? ' tab-section__panel--active' : ''
+            }`}
+            role="tabpanel"
+            aria-labelledby={`tab-${blok._uid}-${tab._uid}`}
+            hidden={index !== 0}
+            data-tab-panel
+          >
+            <TabItem blok={tab} />
+          </section>
+        ))}
+      </div>
+    )}
+
+    {/* Optional source */}
+    {blok.source && (
+      <>
+        <div class="col-span-12 space-block-md" aria-hidden="true"></div>
+        <footer class="col-span-12 tab-section__source">
+          <p
+            class="tab-section__source-text text-fine"
+            set:html={renderRichText(blok.source)}
+          />
+        </footer>
+      </>
+    )}
+  </div>
+</section>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const sections = document.querySelectorAll('[data-tab-section]');
+
+    sections.forEach((section) => {
+      const tabs = Array.from(
+        section.querySelectorAll('.tab-section__tab')
+      );
+      const panels = Array.from(
+        section.querySelectorAll('[data-tab-panel]')
+      );
+
+      if (!tabs.length || !panels.length) return;
+
+      function activateTab(tab) {
+        const targetId = tab.getAttribute('data-tab-target');
+        if (!targetId) return;
+
+        tabs.forEach((t) => {
+          const isActive = t === tab;
+
+          t.classList.toggle('tab-section__tab--active', isActive);
+          t.classList.toggle('text-button-primary', isActive);
+          t.classList.toggle('text-brand-primary', isActive);
+          t.classList.toggle('text-body-sm-strong', !isActive);
+          t.classList.toggle('text-grey-70', !isActive);
+
+          t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          t.tabIndex = isActive ? 0 : -1;
+        });
+
+        panels.forEach((panel) => {
+          const isActive = panel.id === targetId;
+          panel.hidden = !isActive;
+          panel.classList.toggle('tab-section__panel--active', isActive);
+        });
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => activateTab(tab));
+
+        tab.addEventListener('keydown', (event) => {
+          if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+          event.preventDefault();
+
+          const currentIndex = tabs.indexOf(tab);
+          const direction = event.key === 'ArrowRight' ? 1 : -1;
+          const nextIndex = (currentIndex + direction + tabs.length) % tabs.length;
+          const nextTab = tabs[nextIndex];
+
+          nextTab.focus();
+          activateTab(nextTab);
+        });
+      });
+    });
+  });
+</script>
