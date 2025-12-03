@@ -1,0 +1,97 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+// Safe richtext rendering
+const body1Html = blok?.body1 ? renderRichText(blok.body1) : '';
+const body2Html = blok?.body2 ? renderRichText(blok.body2) : '';
+const body3Html = blok?.body3 ? renderRichText(blok.body3) : '';
+const sourceHtml = blok?.source ? renderRichText(blok.source) : '';
+---
+
+<section
+  class="installation-section bg-brand-highlight py-section space-block-md"
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid installation-section__grid">
+    <!-- Headline -->
+    {blok?.headline && (
+      <header class="col-span-12 installation-section__header">
+        <h2 class="installation-section__headline text-brand-on-light text-h3">
+          {blok.headline}
+        </h2>
+      </header>
+    )}
+
+    <!-- Body 1 -->
+    {body1Html && (
+      <div
+        class="col-span-12 installation-section__body installation-section__body--1 text-brand-on-light text-body-sm"
+        set:html={body1Html}
+      ></div>
+    )}
+
+    <!-- Image 1 (right on desktop/tablet, full width mobile) -->
+    {blok?.image1?.filename && (
+      <figure class="col-span-12 installation-section__image installation-section__image--1">
+        <img
+          class="installation-section__image-media installation-section__image-media--1"
+          src={blok.image1.filename}
+          alt={blok.image1.alt || ''}
+          loading="lazy"
+        />
+      </figure>
+    )}
+
+    <!-- Body 2 -->
+    {body2Html && (
+      <div
+        class="col-span-12 installation-section__body installation-section__body--2 text-brand-on-light text-body-sm"
+        set:html={body2Html}
+      ></div>
+    )}
+
+    <!-- Image 2 (left on desktop/tablet, full width mobile) -->
+    {blok?.image2?.filename && (
+      <figure class="col-span-12 installation-section__image installation-section__image--2">
+        <img
+          class="installation-section__image-media installation-section__image-media--2"
+          src={blok.image2.filename}
+          alt={blok.image2.alt || ''}
+          loading="lazy"
+        />
+      </figure>
+    )}
+
+    <!-- Body 3 -->
+    {body3Html && (
+      <div
+        class="col-span-12 installation-section__body installation-section__body--3 text-brand-on-light text-body-sm"
+        set:html={body3Html}
+      ></div>
+    )}
+
+    <!-- Image 3 (right on desktop/tablet, full width mobile) -->
+    {blok?.image3?.filename && (
+      <figure class="col-span-12 installation-section__image installation-section__image--3">
+        <img
+          class="installation-section__image-media installation-section__image-media--3"
+          src={blok.image3.filename}
+          alt={blok.image3.alt || ''}
+          loading="lazy"
+        />
+      </figure>
+    )}
+
+    <!-- Source -->
+    {sourceHtml && (
+      <footer class="col-span-12 installation-section__source">
+        <p
+          class="installation-section__source-text text-fine"
+          set:html={sourceHtml}
+        ></p>
+      </footer>
+    )}
+  </div>
+</section>

@@ -34,6 +34,7 @@ export default defineConfig({
         solution_section: "components/SolutionSection",
         solution_item: "components/SolutionItem",
         list_item: "components/ListItem",
+        installation_section: "components/InstallationSection",
       },
 
       // This helps Storyblok's Visual Editor find your site
