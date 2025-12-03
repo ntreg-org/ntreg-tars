@@ -1369,4 +1369,407 @@
     justify-content: center;
     white-space: nowrap;
   }
+
+  /* ------------------------------------------- */
+  /* Solution section                            */
+  /* ------------------------------------------- */
+
+  .solution-section__image-strip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-8); /* 32px */
+    margin-bottom: var(--space-12);
+    overflow: hidden;
+  }
+
+  .solution-section__image-shell {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .solution-section__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Desktop sizes */
+  @media (min-width: 1024px) {
+    .solution-section__image-shell:nth-child(1),
+    .solution-section__image-shell:nth-child(3) {
+      width: 365px;
+      height: 464px;
+    }
+
+    .solution-section__image-shell:nth-child(2),
+    .solution-section__image-shell:nth-child(4) {
+      width: 366px;
+      height: 261px;
+    }
+  }
+
+  /* Tablet sizes */
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .solution-section__image-shell:nth-child(1),
+    .solution-section__image-shell:nth-child(3) {
+      width: 182px;
+      height: 232px;
+    }
+
+    .solution-section__image-shell:nth-child(2),
+    .solution-section__image-shell:nth-child(4) {
+      width: 183px;
+      height: 130px;
+    }
+  }
+
+  /* Mobile sizes */
+  @media (max-width: 767.98px) {
+    .solution-section__image-strip {
+      gap: var(--space-4);
+    }
+
+    .solution-section__image-shell:nth-child(1),
+    .solution-section__image-shell:nth-child(3) {
+      width: 100px;
+      height: 128px;
+    }
+
+    .solution-section__image-shell:nth-child(2),
+    .solution-section__image-shell:nth-child(4) {
+      width: 100px;
+      height: 72px;
+    }
+  }
+
+  .solution-section__intro {
+    margin-bottom: var(--space-12);
+  }
+
+  .solution-section__headline {
+    margin: 0 0 var(--space-10); /* 40px to body */
+  }
+
+  /* Promote headline/body sizes on desktop */
+  @media (min-width: 1024px) {
+    .solution-section__headline {
+      font-size: 3rem; /* ~text-h2 desktop */
+      line-height: 1.2;
+    }
+
+    .solution-section__body {
+      font-size: 1.125rem; /* text-body-md size */
+      line-height: 1.5;
+    }
+  }
+
+  .solution-section__source {
+    margin-top: var(--space-12);
+  }
+
+  .solution-section__source-text {
+    color: var(--grey-80);
+  }
+
+  /* Solution Items */
+
+  .solution-section__items {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .solution-item {
+    border-top: 1px solid var(--grey-30);
+    padding-top: var(--space-12);
+    padding-bottom: var(--space-12);
+  }
+
+  .solution-item__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .solution-item__headline {
+    margin: 0 0 var(--space-4);
+  }
+
+  .solution-item__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .solution-item__lists {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .solution-item__list-title {
+    margin: 0 0 var(--space-3);
+    text-transform: uppercase;
+  }
+
+  .solution-item__list-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* List item layout & max-widths */
+
+  .solution-list-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+    max-width: 100%;
+  }
+
+  .list-item__icon-wrap {
+    flex: 0 0 auto;
+  }
+
+  .list-item__icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .list-item__text {
+    flex: 1 1 auto;
+  }
+
+  /* Desktop / tablet max widths for list items */
+  @media (min-width: 1024px) {
+    .list-item {
+      max-width: 490px;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .list-item {
+      max-width: 408px;
+    }
+  }
+
+  /* ------------------------------------------- */
+  /* Item-specific layouts                       */
+  /* ------------------------------------------- */
+
+  /* 1) Solution item 1:
+        - Header/body span 9 cols, body in two columns on desktop
+        - Lists left, image right (desktop/tablet)
+        - Stack on mobile
+  */
+
+  @media (min-width: 1024px) {
+    .solution-item--1 .solution-item__inner {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--space-8);
+      row-gap: var(--space-8);
+    }
+
+    .solution-item--1 .solution-item__header {
+      grid-column: span 9;
+    }
+
+    .solution-item--1 .solution-item__main {
+      grid-column: span 12;
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: var(--space-8);
+      align-items: flex-start;
+    }
+
+    .solution-item--1 .solution-item__body {
+      column-count: 2;
+      column-gap: var(--space-8);
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .solution-item--1 .solution-item__main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      column-gap: var(--space-8);
+      align-items: flex-start;
+    }
+  }
+
+  .solution-item--1 .solution-item__image-wrap {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .solution-item--1 .solution-item__image {
+    width: 100%;
+    max-width: 596px;
+    height: auto;
+  }
+
+  /* 2) Solution item 2:
+        - Image and body/pros/cons in same row on desktop/tablet
+        - Body + lists as single column
+  */
+
+  @media (min-width: 768px) {
+    .solution-item--2 .solution-item__main {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: var(--space-8);
+      align-items: flex-start;
+    }
+
+    .solution-item--2 .solution-item__lists {
+      margin-top: var(--space-4);
+    }
+  }
+
+  .solution-item--2 .solution-item__image {
+    width: 100%;
+    max-width: 491px;
+    height: auto;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .solution-item--2 .solution-item__image {
+      max-width: 262px;
+    }
+  }
+
+  /* 3) Solution item 3:
+      - Headline/body/pros/cons in one column left
+      - Image aligned right on desktop/tablet
+*/
+  @media (min-width: 768px) {
+    /* Keep the inner layout simple: header on top, main below */
+    .solution-item--3 .solution-item__inner {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-8);
+    }
+
+    /* Make main area a 2-column grid: lists left, image right */
+    .solution-item--3 .solution-item__main {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: var(--space-8);
+      align-items: flex-start;
+    }
+
+    .solution-item--3 .solution-item__lists {
+      grid-column: 1 / 2;
+    }
+
+    .solution-item--3 .solution-item__image-wrap {
+      grid-column: 2 / 3;
+      display: flex;
+      justify-content: flex-end;
+      align-self: flex-start;
+    }
+  }
+
+  .solution-item--3 .solution-item__image {
+    width: 100%;
+    max-width: 596px;
+    height: auto;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .solution-item--3 .solution-item__image {
+      max-width: 262px;
+    }
+  }
+
+/* 4) Solution item 4:
+      - Image left, body to the right
+      - Stack on mobile (column via base .solution-item__inner)
+*/
+
+.solution-item--4 .solution-item__image-wrap {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.solution-item--4 .solution-item__image {
+  width: 100%;
+  max-width: 387px;
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  /* Make header + main sit in a row */
+  .solution-item--4 .solution-item__inner {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-8);
+  }
+
+  /* Image column on the left */
+  .solution-item--4 .solution-item__main {
+    order: 1;
+    flex: 0 0 auto;
+  }
+
+  /* Copy column (headline + body) on the right */
+  .solution-item--4 .solution-item__header {
+    order: 2;
+    flex: 1 1 auto;
+  }
+
+  .solution-item--4 .solution-item__image {
+    max-width: 300px; /* tablet/desktop size */
+  }
+}
+
+  /* 5) Solution item 5:
+        - Headline/body left, image right
+  */
+
+  @media (min-width: 768px) {
+    .solution-item--5 .solution-item__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      column-gap: var(--space-8);
+      row-gap: var(--space-8);
+      align-items: flex-start;
+    }
+
+    .solution-item--5 .solution-item__header,
+    .solution-item--5 .solution-item__main {
+      grid-column: 1 / 2;
+    }
+
+    .solution-item--5 .solution-item__image-wrap {
+      grid-column: 2 / 3;
+      align-self: center;
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+
+  .solution-item--5 .solution-item__image {
+    width: 100%;
+    max-width: 596px;
+    height: auto;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .solution-item--5 .solution-item__image {
+      max-width: 362px;
+    }
+  }
 }

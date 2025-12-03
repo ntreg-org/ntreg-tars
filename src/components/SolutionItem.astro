@@ -1,0 +1,84 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { renderRichText } from '@storyblok/js';
+import ListItem from '../components/ListItem.astro';
+
+const { blok, index } = Astro.props;
+
+const headline = blok?.headline || '';
+const image = blok?.image;
+const pros = Array.isArray(blok?.pros) ? blok.pros : [];
+const cons = Array.isArray(blok?.cons) ? blok.cons : [];
+const body = blok?.body;
+
+const positionClass = typeof index === 'number'
+  ? `solution-item--${index + 1}`
+  : '';
+---
+
+<article
+  class={`solution-item ${positionClass} col-span-12`}
+  {...storyblokEditable(blok)}
+>
+  <div class="solution-item__inner">
+    {/* Top: headline + body */}
+    <header class="solution-item__header">
+      {headline && (
+        <h3 class="solution-item__headline text-body-md-strong text-brand-on-light">
+          {headline}
+        </h3>
+      )}
+
+      {body && (
+        <div
+          class="solution-item__body text-body-sm text-brand-on-light"
+          set:html={renderRichText(body)}
+        />
+      )}
+    </header>
+
+    {/* Bottom: lists + image */}
+    <div class="solution-item__main">
+      {(pros.length > 0 || cons.length > 0) && (
+        <div class="solution-item__lists">
+          {pros.length > 0 && (
+            <section class="solution-item__list solution-item__list--pros">
+              <h4 class="solution-item__list-title text-body-xs-strong text-grey-70">
+                PROS
+              </h4>
+              <ul class="solution-item__list-items">
+                {pros.map((item: any) => (
+                  <ListItem blok={item} />
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {cons.length > 0 && (
+            <section class="solution-item__list solution-item__list--cons">
+              <h4 class="solution-item__list-title text-body-xs-strong text-grey-70">
+                CONS
+              </h4>
+              <ul class="solution-item__list-items">
+                {cons.map((item: any) => (
+                  <ListItem blok={item} />
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      )}
+
+      {image && (
+        <div class="solution-item__image-wrap">
+          <img
+            src={image.filename}
+            alt={image.alt || ''}
+            class="solution-item__image"
+            loading="lazy"
+          />
+        </div>
+      )}
+    </div>
+  </div>
+</article>

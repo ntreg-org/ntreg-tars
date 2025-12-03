@@ -1,0 +1,29 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { renderRichText } from '@storyblok/js';
+
+const { blok } = Astro.props;
+
+const icon = blok?.icon;
+const text = blok?.text;
+---
+
+<li class="solution-list-item" {...storyblokEditable(blok)}>
+  {icon && (
+    <div class="list-item__icon-wrap">
+      <img
+        src={icon.filename}
+        alt={icon.alt || ''}
+        class="list-item__icon"
+        loading="lazy"
+      />
+    </div>
+  )}
+
+  {text && (
+    <div
+      class="list-item__text text-body-sm text-grey-70"
+      set:html={renderRichText(text)}
+    />
+  )}
+</li>

@@ -31,6 +31,9 @@ export default defineConfig({
         tab_item: "components/TabItem",
         candidate_section: "components/CandidateSection",
         checklist_item: "components/ChecklistItem",
+        solution_section: "components/SolutionSection",
+        solution_item: "components/SolutionItem",
+        list_item: "components/ListItem",
       },
 
       // This helps Storyblok's Visual Editor find your site

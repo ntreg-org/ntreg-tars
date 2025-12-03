@@ -9,6 +9,7 @@ import PartnerLogoSection from '../components/PartnerLogoSection.astro';
 import BenefitsCarouselSection from '../components/BenefitsCarouselSection.astro';
 import TabSection from '../components/TabSection.astro';
 import CandidateSection from '../components/CandidateSection.astro';
+import SolutionSection from '../components/SolutionSection.astro';
 
 
 const storyblokApi = useStoryblokApi();
@@ -39,6 +40,8 @@ const tabBlok = body.find(
   (blok) => blok.component === 'tab_section');
 const candidateBlok = body.find(
   (blok) => blok.component === 'candidate_section');
+const solutionBlok = body.find(
+  (blok) => blok.component === 'solution_section');  
 
 const navBlok = navStory?.content;
 ---
@@ -53,5 +56,6 @@ const navBlok = navStory?.content;
   {benefitsBlok && <BenefitsCarouselSection blok={benefitsBlok} />}
   {tabBlok && <TabSection blok={tabBlok} />}
   {candidateBlok && <CandidateSection blok={candidateBlok} />}
+  {solutionBlok && <SolutionSection blok={solutionBlok} />}
 
 </Layout>
