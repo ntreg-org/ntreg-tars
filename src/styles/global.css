@@ -1914,4 +1914,113 @@
   .installation-section__source-text {
     color: var(--grey-80);
   }
+
+  /* ------------------------------------------- */
+  /* Dealer section                              */
+  /* ------------------------------------------- */
+
+  .dealer-section {
+    background-color: var(--blue-9);
+  }
+
+  .dealer-section__grid {
+    row-gap: var(--space-12);
+  }
+
+  .dealer-section__headline {
+    margin: 0 0 var(--space-10);
+  }
+
+  /* Tips list layout */
+  .dealer-section__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  @media (min-width: 1024px) {
+    .dealer-section__list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-16);
+      row-gap: var(--space-12);
+    }
+
+    /* Cap width to ~5 columns visually */
+    .dealer-item {
+      max-width: 520px;
+    }
+  }
+
+  /* Dealer item: icon + text column */
+  .dealer-item {
+    display: flex;
+    align-items: flex-start; /* top aligned */
+    gap: var(--space-4);
+  }
+
+  .dealer-item__icon-wrap {
+    flex: 0 0 auto;
+  }
+
+  .dealer-item__icon {
+    width: 34px;
+    height: 34px;
+    display: block;
+    object-fit: contain;
+  }
+
+  .dealer-item__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2); /* 8px between headline & body */
+  }
+
+  .dealer-item__headline {
+    margin: 0;
+  }
+
+  .dealer-item__body {
+    margin: 0;
+  }
+
+  /* Summary band */
+  .dealer-section__summary {
+    margin-top: var(--space-16);
+  }
+
+  .dealer-section__summary-inner {
+    background-color: var(--brand-primary);
+    padding: var(--space-10) var(--space-8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dealer-section__summary-text {
+    max-width: 40rem; /* 640px */
+    text-align: center;
+  }
+
+  @media (max-width: 1023.98px) {
+    .dealer-section__summary-inner {
+      padding: var(--space-8);
+    }
+
+    .dealer-section__summary-text {
+      max-width: none;
+    }
+  }
+
+  /* Source */
+  .dealer-section__source {
+    margin-top: var(--space-6);
+  }
+
+  .dealer-section__source-text {
+    color: var(--white-50);
+  }
 }

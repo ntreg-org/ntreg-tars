@@ -1,0 +1,35 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const bodyHtml = blok?.body ? renderRichText(blok.body) : '';
+---
+
+<li class="dealer-item" {...storyblokEditable(blok)}>
+  {blok?.icon?.filename && (
+    <div class="dealer-item__icon-wrap">
+      <img
+        src={blok.icon.filename}
+        alt={blok.icon.alt || ''}
+        class="dealer-item__icon"
+        loading="lazy"
+      />
+    </div>
+  )}
+
+  <div class="dealer-item__content">
+    {blok?.headline && (
+      <h3 class="dealer-item__headline text-body-md text-brand-highlight">
+        {blok.headline}
+      </h3>
+    )}
+
+    {bodyHtml && (
+      <div
+        class="dealer-item__body text-body-sm text-brand-on-dark"
+        set:html={bodyHtml}
+      ></div>
+    )}
+  </div>
+</li>

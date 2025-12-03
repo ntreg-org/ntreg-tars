@@ -1,0 +1,57 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+import DealerItem from './DealerItem.astro';
+
+const { blok } = Astro.props;
+
+const tips = Array.isArray(blok?.tips) ? blok.tips : [];
+const summaryHtml = blok?.summary ? renderRichText(blok.summary) : '';
+const sourceHtml = blok?.source ? renderRichText(blok.source) : '';
+---
+
+<section
+  class="dealer-section py-section space-block-md"
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid dealer-section__grid">
+    {/* Headline */}
+    {blok?.headline && (
+      <header class="col-span-12 dealer-section__header">
+        <h2 class="dealer-section__headline text-h2 text-brand-highlight">
+          {blok.headline}
+        </h2>
+      </header>
+    )}
+
+    {/* Tips list */}
+    {tips.length > 0 && (
+      <ul class="col-span-12 dealer-section__list">
+        {tips.map((tip: any) => (
+          <DealerItem blok={tip} />
+        ))}
+      </ul>
+    )}
+
+    {/* Summary band */}
+    {summaryHtml && (
+      <section class="col-span-12 dealer-section__summary">
+        <div class="dealer-section__summary-inner">
+          <div
+            class="dealer-section__summary-text text-body-md text-brand-on-dark"
+            set:html={summaryHtml}
+          ></div>
+        </div>
+      </section>
+    )}
+
+    {/* Source */}
+    {sourceHtml && (
+      <footer class="col-span-12 dealer-section__source">
+        <div
+          class="dealer-section__source-text text-fine"
+          set:html={sourceHtml}
+        ></div>
+      </footer>
+    )}
+  </div>
+</section>
