@@ -12,6 +12,7 @@ import CandidateSection from '../components/CandidateSection.astro';
 import SolutionSection from '../components/SolutionSection.astro';
 import InstallationSection from '../components/InstallationSection.astro';
 import DealerSection from '../components/DealerSection.astro';
+import BewareSection from '../components/BewareSection.astro';
 
 
 const storyblokApi = useStoryblokApi();
@@ -47,7 +48,9 @@ const solutionBlok = body.find(
 const installationBlok = body.find(
   (blok) => blok.component === 'installation_section');
 const dealerBlok = body.find(
-  (blok) => blok.component === 'dealer_section');      
+  (blok) => blok.component === 'dealer_section');
+const bewareBlok = body.find(
+  (blok) => blok.component === 'beware_section');        
 
 const navBlok = navStory?.content;
 ---
@@ -65,5 +68,6 @@ const navBlok = navStory?.content;
   {solutionBlok && <SolutionSection blok={solutionBlok} />}
   {installationBlok && <InstallationSection blok={installationBlok} />}
   {dealerBlok && <DealerSection blok={dealerBlok} />}
+  {bewareBlok && <BewareSection blok={bewareBlok} />}
 
 </Layout>

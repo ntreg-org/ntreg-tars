@@ -37,6 +37,9 @@ export default defineConfig({
         installation_section: "components/InstallationSection",
         dealer_section: "components/DealerSection",
         dealer_item: "components/DealerItem",
+        beware_section: "components/BewareSection",
+        tactic_item_grid: "components/TacticItemGrid",
+        tactic_item_list: "components/TacticItemList",
       },
 
       // This helps Storyblok's Visual Editor find your site

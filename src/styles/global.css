@@ -2023,4 +2023,297 @@
   .dealer-section__source-text {
     color: var(--white-50);
   }
+
+  /* ------------------------------------------- */
+  /* Beware / Buyer Beware section               */
+  /* ------------------------------------------- */
+
+  .beware-section {
+    background-color: #ffffff;
+  }
+
+  .beware-section__grid {
+    row-gap: var(--space-12);
+  }
+
+  /* Headline pill + callout */
+
+  .beware-section__header {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .beware-section__headline-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--green-10-primary);
+    padding-inline: var(--space-4);
+    height: 28px;
+    max-width: 150px;
+  }
+
+  .beware-section__headline {
+    margin: 0;
+    font-family: var(--font-poppins);
+    font-weight: 400; /* Poppins regular 16px */
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  /* Image + right text row */
+
+  .beware-section__image-row {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-8);
+    row-gap: var(--space-8);
+    align-items: flex-start;
+  }
+
+  .beware-section__image-left {
+    grid-column: 1 / span 6;
+    margin: 0;
+  }
+
+  .beware-section__image-left-media {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .beware-section__body-right {
+    grid-column: 7 / span 6;
+  }
+
+  .beware-section__body-right-inner {
+    margin: 0;
+  }
+
+  /* Tablet: let text be ~60% width, image 40% */
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .beware-section__image-left {
+      grid-column: 1 / span 5;
+    }
+
+    .beware-section__body-right {
+      grid-column: 6 / span 7;
+    }
+  }
+
+  /* Mobile: stack + bleed image to viewport edge */
+  @media (max-width: 767.98px) {
+    .beware-section__image-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .beware-section__image-left {
+      grid-column: 1 / -1;
+    }
+
+    .beware-section__image-left-media {
+      width: 100vw;
+      max-width: none;
+      margin-left: calc(50% - 50vw);
+      height: auto;
+    }
+
+    .beware-section__body-right {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* ------------------------------------------- */
+  /* Examples section (image + tactic grid)      */
+  /* ------------------------------------------- */
+
+  .beware-section__examples {
+    margin-top: var(--space-12);
+  }
+
+  .beware-section__example-headline {
+    margin: 0 0 var(--space-8);
+  }
+
+  .beware-section__examples-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+    align-items: flex-start;
+  }
+
+  .beware-section__example-image {
+    margin: 0;
+  }
+
+  .beware-section__example-image-media {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* Desktop/tablet sizes for the example image */
+  @media (min-width: 768px) {
+    .beware-section__examples-main {
+      grid-template-columns: minmax(0, 290px) minmax(0, 1fr);
+      column-gap: var(--space-12);
+    }
+
+    .beware-section__example-image-media {
+      max-width: 290px;
+      height: 362px;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .beware-section__example-image-media {
+      max-width: 212px;
+      height: 264px;
+    }
+  }
+
+  .beware-section__example-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .beware-section__example-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-8);
+      row-gap: var(--space-6);
+    }
+  }
+
+  /* Example cards (tactic_item_grid) */
+
+  .beware-example-card {
+    padding: var(--space-4);
+    background-color: var(--grey-05);
+    max-height: 544px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .beware-example-card__headline {
+    margin: 0;
+  }
+
+  .beware-example-card__body {
+    margin: 0;
+  }
+
+  /* ------------------------------------------- */
+  /* Tactics band (green-13)                     */
+  /* ------------------------------------------- */
+
+  .beware-section__tactics {
+    margin-top: var(--space-16);
+    background-color: var(--green-13);
+    padding: var(--space-12) 0;
+  }
+
+  .beware-section__tactics-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-8);
+  }
+
+  .beware-section__tactics-headline-wrap,
+  .beware-section__tactics-items,
+  .beware-section__tactics-image {
+    padding-inline: clamp(24px, 6vw, 280px);
+  }
+
+  .beware-section__tactics-headline {
+    margin: 0 0 var(--space-4);
+    color: var(--green-5);
+  }
+
+  .beware-section__tactics-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .beware-tactic-list-item {
+    font-family: var(--font-inter);
+    font-size: 1rem; /* text-body-sm baseline */
+    line-height: 1.5;
+  }
+
+  @media (min-width: 1024px) {
+    .beware-tactic-list-item {
+      font-size: 1.125rem; /* approx text-body-md on desktop */
+    }
+  }
+
+  .beware-section__tactics-image {
+    margin: 0;
+  }
+
+  .beware-section__tactics-image-media {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* Desktop: 3 columns (headline / list / image) */
+  @media (min-width: 1024px) {
+    .beware-section__tactics-inner {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-12);
+    }
+
+    .beware-section__tactics-headline-wrap,
+    .beware-section__tactics-items,
+    .beware-section__tactics-image {
+      padding-inline: 108px;
+    }
+
+    .beware-section__tactics-image-media {
+      max-width: 422px;
+      height: 440px;
+      margin-left: auto; /* align right */
+    }
+  }
+
+  /* Tablet image sizes */
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .beware-section__tactics-image-media {
+      width: 100%;
+      max-width: 675px;
+      height: 274px;
+      object-fit: cover;
+      object-position: top center;
+      margin-inline: auto;
+    }
+  }
+
+  /* Mobile: full-width tactics image */
+  @media (max-width: 767.98px) {
+    .beware-section__tactics-image-media {
+      width: 100vw;
+      max-width: none;
+      margin-left: calc(50% - 50vw);
+    }
+  }
+
+  .beware-section__source {
+    margin-top: var(--space-6);
+    padding-inline: clamp(24px, 6vw, 280px);
+  }
+
+  .beware-section__source-text {
+    color: var(--white-50);
+  }
 }

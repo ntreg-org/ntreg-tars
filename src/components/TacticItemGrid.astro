@@ -1,0 +1,21 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+---
+<article
+  class="beware-example-card"
+  {...storyblokEditable(blok)}
+>
+  {blok.headline && (
+    <h3 class="beware-example-card__headline text-body-md text-brand-on-light">
+      {blok.headline}
+    </h3>
+  )}
+
+  {blok.body && (
+    <p class="beware-example-card__body text-body-xs text-grey-70">
+      {blok.body}
+    </p>
+  )}
+</article>

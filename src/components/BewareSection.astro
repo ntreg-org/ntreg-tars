@@ -1,0 +1,140 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+import TacticItemGrid from './TacticItemGrid.astro';
+import TacticItemList from './TacticItemList.astro';
+
+const { blok } = Astro.props;
+
+// Rich text → HTML
+const calloutHtml = blok.callout ? renderRichText(blok.callout) : '';
+const bodyRightHtml = blok.body_right ? renderRichText(blok.body_right) : '';
+const sourceHtml = blok.source ? renderRichText(blok.source) : '';
+---
+<section
+  class="beware-section py-section space-block-md"
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid beware-section__grid">
+    <!-- Headline pill + callout -->
+    <header class="col-span-12 beware-section__header">
+      {blok.headline && (
+        <div class="beware-section__headline-pill">
+          <p class="beware-section__headline text-brand-primary">
+            {blok.headline}
+          </p>
+        </div>
+      )}
+
+      {calloutHtml && (
+        <div class="beware-section__callout">
+          <div
+            class="text-h3 text-brand-primary"
+            set:html={calloutHtml}
+          ></div>
+        </div>
+      )}
+    </header>
+
+    <!-- Image + right body -->
+    <div class="col-span-12 beware-section__image-row">
+      {blok.image_left?.filename && (
+        <figure class="beware-section__image-left">
+          <img
+            src={blok.image_left.filename}
+            alt={blok.image_left.alt ?? ''}
+            loading="lazy"
+            class="beware-section__image-left-media"
+          />
+        </figure>
+      )}
+
+      {bodyRightHtml && (
+        <div class="beware-section__body-right text-brand-on-light">
+          <div
+            class="beware-section__body-right-inner text-body-md"
+            set:html={bodyRightHtml}
+          ></div>
+        </div>
+      )}
+    </div>
+
+    <!-- Examples: headline + image + tactic grid items -->
+    {(blok.example_headline || blok.example_image?.filename || blok.example_items?.length) && (
+      <section class="col-span-12 beware-section__examples">
+        {blok.example_headline && (
+          <h2 class="beware-section__example-headline text-brand-primary text-h3 lg:text-h2">
+            {blok.example_headline}
+          </h2>
+        )}
+
+        <div class="beware-section__examples-main">
+          {blok.example_image?.filename && (
+            <figure class="beware-section__example-image">
+              <img
+                src={blok.example_image.filename}
+                alt={blok.example_image.alt ?? ''}
+                loading="lazy"
+                class="beware-section__example-image-media"
+              />
+            </figure>
+          )}
+
+          {Array.isArray(blok.example_items) && blok.example_items.length > 0 && (
+            <div class="beware-section__example-grid">
+              {blok.example_items.map((item: any) => (
+                <TacticItemGrid blok={item} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    <!-- Tactics (green band) -->
+    {(blok.tactics_headline || blok.tactics_items?.length || blok.tactics_image?.filename) && (
+      <section class="col-span-12 beware-section__tactics">
+        <div class="beware-section__tactics-inner">
+          {blok.tactics_headline && (
+            <div class="beware-section__tactics-headline-wrap">
+              <h2 class="beware-section__tactics-headline text-h3 lg:text-h2">
+                {blok.tactics_headline}
+              </h2>
+            </div>
+          )}
+
+          {Array.isArray(blok.tactics_items) && blok.tactics_items.length > 0 && (
+            <div class="beware-section__tactics-items">
+              <ul class="beware-section__tactics-list">
+                {blok.tactics_items.map((item: any) => (
+                  <li>
+                    <TacticItemList blok={item} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {blok.tactics_image?.filename && (
+            <figure class="beware-section__tactics-image">
+              <img
+                src={blok.tactics_image.filename}
+                alt={blok.tactics_image.alt ?? ''}
+                loading="lazy"
+                class="beware-section__tactics-image-media"
+              />
+            </figure>
+          )}
+        </div>
+
+        {sourceHtml && (
+          <footer class="beware-section__source">
+            <div
+              class="beware-section__source-text text-fine"
+              set:html={sourceHtml}
+            ></div>
+          </footer>
+        )}
+      </section>
+    )}
+  </div>
+</section>
