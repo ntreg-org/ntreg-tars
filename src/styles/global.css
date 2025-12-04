@@ -2316,4 +2316,137 @@
   .beware-section__source-text {
     color: var(--white-50);
   }
+
+  /* =========================
+   Loan Section
+   ========================= */
+
+  .loan-section__grid {
+    row-gap: var(--space-12);
+  }
+
+  /* Image */
+  .loan-section__image-wrap {
+    max-width: 600px;
+    margin-inline: auto;
+  }
+
+  .loan-section__image-media {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* Headline + body */
+  .loan-section__headline {
+    margin-bottom: var(--space-6);
+  }
+
+  .loan-section__body {
+    margin-bottom: var(--space-8);
+  }
+
+  /* Sources heading + divider */
+  .loan-section__sources-heading {
+    display: flex;
+    align-items: center;
+    column-gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .loan-section__sources-label {
+    white-space: nowrap;
+  }
+
+  .loan-section__sources-divider {
+    flex: 1;
+    height: 1px;
+    background-color: var(--grey-30);
+  }
+
+  /* Items list */
+  .loan-section__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  /* Source text */
+  .loan-section__source {
+    margin-top: var(--space-8);
+  }
+
+  /* Desktop layout tweaks */
+  @media (min-width: 1024px) {
+    /* Use flex on desktop so image + content are guaranteed to sit in one row */
+    .loan-section__grid {
+      display: flex;
+      gap: var(--space-16);
+      align-items: flex-start;
+    }
+
+    .loan-section__image-col,
+    .loan-section__content {
+      flex: 0 0 50%;
+    }
+
+    /* Nudge image toward the left edge while staying within its half */
+    .loan-section__image-wrap {
+      margin-left: 0;
+    }
+  }
+
+  /* =========================
+   Loan Item
+   ========================= */
+
+  .loan-item {
+    list-style: none;
+  }
+
+  .loan-item__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-3);
+  }
+
+  .loan-item__meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    column-gap: var(--space-3);
+  }
+
+  /* 24x24 icon badge with arrow */
+  .loan-item__icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--yellow-8, #f7c948);
+  }
+
+  .loan-item__icon::before {
+    content: "→";
+    font-size: 0.75rem;
+  }
+
+  .loan-item__body {
+    margin: 0;
+  }
+
+  /* Two-column layout for tablet/desktop */
+  @media (min-width: 768px) {
+    .loan-item__content {
+      grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+      column-gap: var(--space-8);
+      align-items: flex-start;
+    }
+  }
 }

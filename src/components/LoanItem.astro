@@ -1,0 +1,26 @@
+---
+import { renderRichText } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+const bodyHtml = blok.body ? renderRichText(blok.body) : '';
+---
+
+<li class="loan-item">
+  <div class="loan-item__content">
+    <!-- Icon + headline -->
+    <div class="loan-item__meta">
+      <span class="loan-item__icon" aria-hidden="true"></span>
+      <p class="loan-item__headline text-body-sm-strong text-brand-on-light">
+        {blok.headline}
+      </p>
+    </div>
+
+    {bodyHtml && (
+      <div
+        class="loan-item__body text-body-sm text-grey-70"
+        set:html={bodyHtml}
+      ></div>
+    )}
+  </div>
+</li>

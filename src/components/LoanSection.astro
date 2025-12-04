@@ -1,0 +1,72 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+import LoanItem from './LoanItem.astro';
+
+const { blok } = Astro.props;
+
+const bodyHtml = blok.body ? renderRichText(blok.body) : '';
+const sourceHtml = blok.source ? renderRichText(blok.source) : '';
+---
+
+<section
+  class="loan-section py-section space-block-md"
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid loan-section__grid">
+    <!-- Image column -->
+    <div class="loan-section__image-col col-span-12 lg:col-span-6">
+      {blok.image?.filename && (
+        <figure class="loan-section__image-wrap">
+          <img
+            src={blok.image.filename}
+            alt={blok.image.alt ?? ''}
+            loading="lazy"
+            class="loan-section__image-media"
+          />
+        </figure>
+      )}
+    </div>
+
+    <!-- Text + items column -->
+    <div class="loan-section__content col-span-12 lg:col-span-6">
+      {blok.headline && (
+        <h2 class="loan-section__headline text-brand-primary text-h3 lg:text-h2">
+          {blok.headline}
+        </h2>
+      )}
+
+      {bodyHtml && (
+        <div
+          class="loan-section__body text-brand-on-light text-body-sm md:text-body-md"
+          set:html={bodyHtml}
+        ></div>
+      )}
+
+      {blok.sources_headline && (
+        <div class="loan-section__sources-heading">
+          <p class="loan-section__sources-label text-body-xs-strong text-grey-70">
+            {blok.sources_headline}
+          </p>
+          <div class="loan-section__sources-divider"></div>
+        </div>
+      )}
+
+      {Array.isArray(blok.items) && blok.items.length > 0 && (
+        <ul class="loan-section__items">
+          {blok.items.map((item: any) => (
+            <LoanItem blok={item} />
+          ))}
+        </ul>
+      )}
+
+      {sourceHtml && (
+        <footer class="loan-section__source">
+          <div
+            class="loan-section__source-text text-fine text-grey-80"
+            set:html={sourceHtml}
+          ></div>
+        </footer>
+      )}
+    </div>
+  </div>
+</section>
