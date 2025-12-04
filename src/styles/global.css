@@ -421,6 +421,10 @@
     .page-grid {
       padding-inline: 108px;
     }
+    /* Force 6-col span on desktop for anything using `lg:col-span-6` */
+    .lg\:col-span-6 {
+      grid-column: span 6 / span 6;
+    }
   }
 
   /* ------------------------------------------- */
@@ -2447,6 +2451,75 @@
       grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
       column-gap: var(--space-8);
       align-items: flex-start;
+    }
+  }
+
+  /* Insurance Section
+   ------------------------------------------------------------------ */
+
+  .insurance-section__grid {
+    /* Make our own 12-column grid inside page-grid */
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-8);
+    row-gap: var(--space-10);
+  }
+
+  /* Default: mobile & tablet = full width (12 cols) */
+  .insurance-section__copy,
+  .insurance-section__image-col {
+    grid-column: span 12;
+  }
+
+  .insurance-section__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .insurance-section__source {
+    margin-top: var(--space-6);
+  }
+
+  /* Desktop: 6/6 split */
+  @media (min-width: 1024px) {
+    .insurance-section__copy,
+    .insurance-section__image-col {
+      grid-column: span 6;
+    }
+  }
+
+  /* Image column + cropping behaviour */
+
+  .insurance-section__image-col {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .insurance-section__image {
+    width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Desktop: 596x711-ish */
+  @media (min-width: 1024px) {
+    .insurance-section__image {
+      height: 711px;
+    }
+  }
+
+  /* Tablet: 704x330 crop */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .insurance-section__image {
+      height: 330px;
+    }
+  }
+
+  /* Mobile: 311x203 crop */
+  @media (max-width: 767px) {
+    .insurance-section__image {
+      height: 203px;
     }
   }
 }

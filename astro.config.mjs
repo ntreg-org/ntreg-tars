@@ -42,6 +42,7 @@ export default defineConfig({
         tactic_item_list: "components/TacticItemList",
         loan_section: "components/LoanSection",
         loan_item: "components/LoanItem",
+        insurance_section: "components/InsuranceSection",
       },
 
       // This helps Storyblok's Visual Editor find your site

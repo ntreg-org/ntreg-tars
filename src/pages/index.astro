@@ -14,6 +14,7 @@ import InstallationSection from '../components/InstallationSection.astro';
 import DealerSection from '../components/DealerSection.astro';
 import BewareSection from '../components/BewareSection.astro';
 import LoanSection from '../components/LoanSection.astro';
+import InsuranceSection from '../components/InsuranceSection.astro';
 
 
 const storyblokApi = useStoryblokApi();
@@ -53,7 +54,9 @@ const dealerBlok = body.find(
 const bewareBlok = body.find(
   (blok) => blok.component === 'beware_section');
 const loanBlok = body.find(
-  (blok) => blok.component === 'loan_section');           
+  (blok) => blok.component === 'loan_section');
+const insuranceBlok = body.find(
+  (blok) => blok.component === 'insurance_section');             
 
 const navBlok = navStory?.content;
 ---
@@ -73,5 +76,6 @@ const navBlok = navStory?.content;
   {dealerBlok && <DealerSection blok={dealerBlok} />}
   {bewareBlok && <BewareSection blok={bewareBlok} />}
   {loanBlok && <LoanSection blok={loanBlok} />}
+  {insuranceBlok && <InsuranceSection blok={insuranceBlok} />}
 
 </Layout>

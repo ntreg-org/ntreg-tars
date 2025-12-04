@@ -1,0 +1,60 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+// Safe guards without TS type errors
+const headline = blok?.headline || '';
+const image = blok?.image?.filename ? blok.image : null;
+
+const bodyHtml =
+  blok?.body && typeof blok.body === 'object'
+    ? renderRichText(blok.body) ?? ''
+    : '';
+
+const sourceHtml =
+  blok?.source && typeof blok.source === 'object'
+    ? renderRichText(blok.source) ?? ''
+    : '';
+---
+
+<section
+  class="insurance-section py-section"
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid insurance-section__grid">
+    {/* Left: headline + body + source */}
+    <header class="insurance-section__copy">
+      {headline && (
+        <h2 class="insurance-section__headline text-brand-primary text-h3 lg:text-h2">
+          {headline}
+        </h2>
+      )}
+
+      {bodyHtml && (
+        <div
+          class="insurance-section__body text-grey-70 text-body-sm md:text-body-md"
+          set:html={bodyHtml}
+        ></div>
+      )}
+
+      {sourceHtml && (
+        <div class="insurance-section__source text-fine text-grey-80">
+          <div set:html={sourceHtml}></div>
+        </div>
+      )}
+    </header>
+
+    {/* Right: image */}
+    {image && (
+      <figure class="insurance-section__image-col">
+        <img
+          src={image.filename}
+          alt={image.alt ?? ''}
+          loading="lazy"
+          class="insurance-section__image"
+        />
+      </figure>
+    )}
+  </div>
+</section>
