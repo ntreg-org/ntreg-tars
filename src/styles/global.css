@@ -427,6 +427,29 @@
     }
   }
 
+  /* ----------------------------------------
+   Generic two-column layout: 6 / 6 on desktop,
+   stacked (full-width) on tablet & mobile
+   ---------------------------------------- */
+
+  .layout-two-6-6__primary,
+  .layout-two-6-6__secondary {
+    /* mobile / tablet: each takes full width */
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 1024px) {
+    .layout-two-6-6__primary {
+      /* left column: 6 of 12 */
+      grid-column: 1 / span 6;
+    }
+
+    .layout-two-6-6__secondary {
+      /* right column: 6 of 12 */
+      grid-column: 7 / span 6;
+    }
+  }
+
   /* ------------------------------------------- */
   /* ------------------------------------------- */
   /* CONTENT SPECIFIC STYLES -------------------------- */
@@ -2520,6 +2543,171 @@
   @media (max-width: 767px) {
     .insurance-section__image {
       height: 203px;
+    }
+  }
+
+  /* =========================
+   Maintenance Section
+   ========================= */
+
+  .maintenance-section {
+    background-color: var(--brand-primary);
+    color: var(--white-90);
+  }
+
+  /* Base: mobile + tablet → stack images then content */
+  .maintenance-section__grid {
+    display: flex; /* override page-grid's display:grid */
+    flex-direction: column; /* images on top, content below */
+    gap: var(--space-12);
+  }
+
+  /* Images wrapper */
+  .maintenance-section__images {
+    display: flex;
+    flex-direction: row; /* MOBILE/TABLET: images in a row L → R */
+    gap: var(--space-4);
+  }
+
+  .maintenance-section__image {
+    margin: 0;
+    flex: 1 1 0;
+  }
+
+  .maintenance-section__image-media {
+    display: block;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  /* Mobile image height: ~150×164 */
+  @media (max-width: 767.98px) {
+    .maintenance-section__image-media {
+      height: 164px;
+    }
+  }
+
+  /* Tablet image height: ~300×330 */
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .maintenance-section__image-media {
+      height: 330px;
+    }
+  }
+
+  /* Content (headline + body + items + source) */
+  .maintenance-section__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .maintenance-section__headline {
+    margin: 0 0 var(--space-6);
+  }
+
+  /* Body: white-70 + responsive type */
+  .maintenance-section__body {
+    color: var(--white-70);
+  }
+
+  /* Items list */
+  .maintenance-section__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  /* Source */
+  .maintenance-section__source {
+    margin-top: var(--space-8);
+    color: var(--white-50);
+  }
+
+  /* Desktop: image + content side-by-side, images stack vertically */
+  @media (min-width: 1024px) {
+    .maintenance-section__grid {
+      flex-direction: row; /* now left/right */
+      gap: var(--space-16);
+      align-items: flex-start;
+    }
+
+    .maintenance-section__images-col,
+    .maintenance-section__content {
+      flex: 0 0 50%; /* 50/50 split */
+    }
+
+    .maintenance-section__images {
+      flex-direction: column;
+      gap: var(--space-6);
+      max-width: 344px;
+    }
+
+    .maintenance-section__image-media {
+      width: 344px;
+      height: 430px;
+    }
+  }
+
+  /* =========================
+   Maintenance Item
+   ========================= */
+
+  .maintenance-item {
+    list-style: none;
+  }
+
+  .maintenance-item__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-3);
+  }
+
+  /* icon + headline row */
+  .maintenance-item__meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    column-gap: var(--space-3);
+  }
+
+  /* 24×24 yellow circle w/ arrow */
+  .maintenance-item__icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--yellow-8);
+  }
+
+  .maintenance-item__icon::before {
+    content: "→";
+    font-size: 0.75rem;
+  }
+
+  .maintenance-item__headline {
+    margin: 0;
+  }
+
+  /* body text under/right of meta */
+  .maintenance-item__body {
+    margin: 0;
+    color: var(--white-70);
+  }
+
+  /* Tablet + desktop: 2-column layout for each item
+   - left: icon + headline
+   - right: body
+*/
+  @media (min-width: 768px) {
+    .maintenance-item__content {
+      grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+      column-gap: var(--space-8);
+      align-items: flex-start;
     }
   }
 }

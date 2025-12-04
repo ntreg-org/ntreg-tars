@@ -1,0 +1,45 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { renderRichText } from '@storyblok/js';
+
+/**
+ * Keep typing light so TS stops yelling.
+ * You already know the shape from Storyblok,
+ * we just need enough to work with safely.
+ */
+type RichTextField = unknown;
+
+interface MaintenanceItemBlok {
+  _uid: string;
+  component: string;
+  headline?: string;
+  body?: RichTextField;
+}
+
+const { blok } = Astro.props as { blok: MaintenanceItemBlok };
+
+const headline = blok.headline ?? '';
+const bodyHtml = blok.body ? renderRichText(blok.body as any) : '';
+---
+
+<li class="maintenance-item" {...storyblokEditable(blok as any)}>
+  <div class="maintenance-item__content">
+    <!-- Icon + Headline row -->
+    <div class="maintenance-item__meta">
+      <span
+        class="maintenance-item__icon"
+        aria-hidden="true"
+      ></span>
+
+      <p class="maintenance-item__headline text-body-sm-strong text-brand-on-dark">
+        {headline}
+      </p>
+    </div>
+
+    <!-- Body copy -->
+    <div
+      class="maintenance-item__body text-body-sm"
+      set:html={bodyHtml || ''}
+    ></div>
+  </div>
+</li>

@@ -43,6 +43,8 @@ export default defineConfig({
         loan_section: "components/LoanSection",
         loan_item: "components/LoanItem",
         insurance_section: "components/InsuranceSection",
+        maintenance_section: "components/MaintenanceSection",
+        maintenance_item: "components/MaintenanceItem",
       },
 
       // This helps Storyblok's Visual Editor find your site

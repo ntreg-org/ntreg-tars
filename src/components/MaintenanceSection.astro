@@ -1,0 +1,87 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { renderRichText } from '@storyblok/js';
+import MaintenanceItem from './MaintenanceItem.astro';
+
+type RichTextField = unknown;
+
+interface MaintenanceItemBlok {
+  _uid: string;
+  component: string;
+  headline?: string;
+  body?: RichTextField;
+}
+
+interface MaintenanceSectionBlok {
+  headline?: string;
+  body?: RichTextField;
+  images?: { filename?: string; alt?: string }[];
+  items?: MaintenanceItemBlok[];
+  source?: RichTextField;
+}
+
+const { blok } = Astro.props as { blok: MaintenanceSectionBlok };
+
+const headline = blok.headline ?? '';
+const bodyHtml = blok.body ? renderRichText(blok.body as any) : '';
+const images = Array.isArray(blok.images) ? blok.images : [];
+const items: MaintenanceItemBlok[] = Array.isArray(blok.items) ? blok.items : [];
+const sourceHtml = blok.source ? renderRichText(blok.source as any) : '';
+---
+
+<section
+  class="maintenance-section bg-brand-primary py-section"
+  {...storyblokEditable(blok as any)}
+>
+  <div class="page-grid maintenance-section__grid">
+    <!-- LEFT: image stack / row -->
+    <div class="maintenance-section__images-col">
+      <div class="maintenance-section__images">
+        {images.map((image, index) => (
+          <figure class="maintenance-section__image" aria-hidden="true">
+            {image?.filename && (
+              <img
+                src={image.filename}
+                alt={image.alt ?? ''}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                class="maintenance-section__image-media"
+              />
+            )}
+          </figure>
+        ))}
+      </div>
+    </div>
+
+    <!-- RIGHT: headline, body, items, source -->
+    <div class="maintenance-section__content">
+      <header class="maintenance-section__header">
+        {headline && (
+          <h2 class="maintenance-section__headline text-brand-on-dark text-h3 lg:text-h2">
+            {headline}
+          </h2>
+        )}
+
+        {bodyHtml && (
+          <div
+            class="maintenance-section__body text-body-sm md:text-body-md"
+            set:html={bodyHtml || ''}
+          ></div>
+        )}
+      </header>
+
+      {items.length > 0 && (
+        <ul class="maintenance-section__items">
+          {items.map((item) => (
+            <MaintenanceItem blok={item} />
+          ))}
+        </ul>
+      )}
+
+      {sourceHtml && (
+        <div class="maintenance-section__source text-fine">
+          <div set:html={sourceHtml || ''}></div>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
