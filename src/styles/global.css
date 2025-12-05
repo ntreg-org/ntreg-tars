@@ -457,8 +457,23 @@
   /* ------------------------------------------- */
 
   /* ------------------------------------------- */
-  /* Hero Typography + Colors                    */
+  /* Hero                 */
   /* ------------------------------------------- */
+
+  /* Hero section structural helpers */
+  .hero-section__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  .hero-section__inner {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    min-height: 92vh;
+    align-items: flex-end; /* anchor content to bottom of hero */
+  }
 
   .hero-type {
     letter-spacing: -0.01em;

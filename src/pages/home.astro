@@ -1,5 +1,31 @@
 ---
-// src/pages/home.astro
-import IndexPage from './index.astro';
+import Layout from "../layouts/layout.astro";
+import { useStoryblokApi } from "@storyblok/astro";
+
+const storyblokApi = useStoryblokApi();
+const version = import.meta.env.DEV ? "draft" : "published";
+
+// Fetch the Solar Contractor Questions page + global nav + global footer
+const [{ data: pageData }, { data: navData }, { data: footerData }] = await Promise.all([
+  storyblokApi.get("cdn/stories/solar-questions", { version }),
+  storyblokApi.get("cdn/stories/global-nav", { version }),
+  storyblokApi.get("cdn/stories/global-footer", { version }),
+]);
+
+const pageStory = pageData.story;
+const navBlok = navData.story?.content;
+const footerBlok = footerData.story?.content;
+
+// We'll hook into this later when we add specific sections for this page
+const body = Array.isArray(pageStory?.content?.body)
+  ? pageStory.content.body
+  : [];
 ---
-<IndexPage />
+
+<Layout
+  title="Solar Contractor Questions | NTREG"
+  navBlok={navBlok}
+  footerBlok={footerBlok}
+>
+  {/** TODO: render solar-questions sections from `body` once components are ready */}
+</Layout>

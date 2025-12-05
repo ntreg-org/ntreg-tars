@@ -1,0 +1,43 @@
+---
+import Layout from "../layouts/layout.astro";
+import HeroSection from "../components/HeroSection.astro";
+import { useStoryblokApi } from "@storyblok/astro";
+
+const storyblokApi = useStoryblokApi();
+const version = import.meta.env.DEV ? "draft" : "published";
+
+// Fetch the Solar Contractor Questions page + global nav + global footer
+const [{ data: pageData }, { data: navData }, { data: footerData }] =
+  await Promise.all([
+    storyblokApi.get("cdn/stories/solar-questions", { version }),
+    storyblokApi.get("cdn/stories/global-nav", { version }),
+    storyblokApi.get("cdn/stories/global-footer", { version }),
+  ]);
+
+const pageStory  = pageData.story;
+const navBlok    = navData.story?.content;
+const footerBlok = footerData.story?.content;
+
+const body = Array.isArray(pageStory?.content?.body)
+  ? pageStory.content.body
+  : [];
+---
+
+<Layout
+  title="Solar Contractor Questions | NTREG"
+  navBlok={navBlok}
+  footerBlok={footerBlok}
+>
+  {body.map((blok: any) => {
+    if (blok.component === "hero_section") {
+      return <HeroSection blok={blok} />;
+    }
+
+    // We'll fill these in later as you define more blocks
+    // if (blok.component === "question_section") {
+    //   return <QuestionSection blok={blok} />;
+    // }
+
+    return null;
+  })}
+</Layout>

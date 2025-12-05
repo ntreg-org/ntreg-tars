@@ -1,67 +1,70 @@
 ---
+// src/components/HeroSection.astro
 import { storyblokEditable } from '@storyblok/astro';
 
-/*
-  DEV NOTE (CMS-safe reads):
-  - Optional chaining (?.) avoids crashes if Storyblok fields are missing.
-  - Nullish coalescing (??) uses a default only when value is null/undefined.
-*/
 const { blok } = Astro.props;
 
-const imageUrl   = blok?.background_image?.filename ?? '';
+// Safe reads from Storyblok
+const imageUrl =
+  blok?.background_image?.filename ?? '';
+
 const scrollLink =
   blok?.scroll_prompt_link?.url ??
   blok?.scroll_prompt_link?.cached_url ??
   '#';
-const primary    = blok?.headline_primary ?? '';
-const highlight  = blok?.headline_highlight ?? '';
-const bodyText   = blok?.body ?? '';
-const promptTxt  = blok?.scroll_prompt_text ?? 'Continue Learning';
+
+const primary   = blok?.headline_primary   ?? '';
+const highlight = blok?.headline_highlight ?? '';
+const bodyText  = blok?.body               ?? '';
+const promptTxt = blok?.scroll_prompt_text ?? 'Continue Learning';
 ---
 
 <section
- class={`relative bg-cover bg-center text-white overflow-hidden ${imageUrl ? '' : 'bg-slate-900'}`}
-   style={imageUrl ? `background-image:url(${imageUrl});` : undefined}
-   {...storyblokEditable(blok)}
+  class={`hero-section relative bg-cover bg-center text-white overflow-hidden ${
+    imageUrl ? '' : 'bg-slate-900'
+  }`}
+  style={imageUrl ? `background-image:url(${imageUrl});` : undefined}
+  {...storyblokEditable(blok)}
 >
-  <!-- Overlay -->
-  <div class="absolute inset-0 bg-black/60"></div>
+  <!-- Dark overlay -->
+  <div class="hero-section__overlay"></div>
 
-  <!-- Vertical wrapper anchors content to bottom of the hero -->
-  <div class="relative z-10 flex min-h-[92vh] items-end">
-    <!-- 12-col grid; adjust pb to move the block up/down from the bottom -->
+  <!-- Bottom-anchored content wrapper -->
+  <div class="hero-section__inner">
     <div class="page-grid w-full pb-16 md:pb-24 lg:pb-[200px]">
+      <!-- Headline block -->
+      <div class="col-span-12 lg:col-span-9">
+        {primary && <h1 class="hero-type hero-white">{primary}</h1>}
+        {highlight && (
+          <h2 class="hero-type text-brand-highlight">{highlight}</h2>
+        )}
+      </div>
 
+      <!-- Divider + subcopy + scroll prompt -->
+      <div class="col-span-12 mt-5 md:mt-7">
+        <!-- divider matches page grid width -->
+        <div class="h-px w-full bg-[rgba(255,255,255,0.40)]"></div>
 
-    <!-- Headline block -->
-<div class="col-span-12 lg:col-span-9">
-       {primary && (<h1 class="hero-type hero-white">{primary}</h1>)}
-       {highlight && (<h2 class="hero-type text-brand-highlight">{highlight}</h2>)}
-     </div>
+        <!--
+          On mobile: stack subcopy over scroll link
+          On md+: keep them side-by-side
+        -->
+        <div class="mt-3 md:mt-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          {bodyText && (
+            <p class="hero-subcopy text-left">
+              {bodyText}
+            </p>
+          )}
 
-<!-- Bottom row under the line — FULL GRID WIDTH, no max-width -->
-<div class="col-span-12 mt-5 md:mt-7">
-  <!-- divider matches the page grid width -->
-  <div class="h-px w-full bg-[rgba(255,255,255,0.40)]"></div>
+          <a href={scrollLink} class="hero-scroll">
+            <span>{promptTxt}</span>
+            <span class="hero-scroll__icon">↓</span>
+          </a>
+        </div>
+      </div>
 
-<!-- row matches the page grid width; items flush to left/right -->
-<div class="mt-3 md:mt-5 flex items-center justify-between">
-  <!-- Left: What you need… -->
-  {bodyText && (
-    <p class="hero-subcopy text-left">
-      {bodyText}
-    </p>
-  )}
-
-  <!-- Right: Continue Learning -->
-  <a href={scrollLink} class="hero-scroll">
-    <span>{promptTxt}</span>
-    <span class="hero-scroll__icon">↓</span>
-  </a>
-</div>
-</div>
-
-   <div class="col-span-12 h-[117px]"></div>
-    </div> <!-- end inner page-grid -->
-  </div>   <!-- end flex bottom wrapper -->
+      <!-- Spacer to pull block up from absolute page bottom -->
+      <div class="col-span-12 h-[117px]"></div>
+    </div>
+  </div>
 </section>
