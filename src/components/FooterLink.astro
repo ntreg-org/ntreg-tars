@@ -1,0 +1,34 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+type FooterLinkBlok = {
+  _uid: string;
+  component: 'footer_link';
+  text?: string;
+  link?: {
+    url?: string;
+    cached_url?: string;
+    linktype?: string;
+  };
+};
+
+const { blok } = Astro.props as { blok: FooterLinkBlok };
+
+const rawLink = blok.link || {};
+let href = '#';
+
+// Basic URL resolver
+if (rawLink.linktype === 'url' && rawLink.url) {
+  href = rawLink.url;
+} else if (rawLink.linktype === 'story' && rawLink.cached_url) {
+  href = '/' + rawLink.cached_url.replace(/^\/+/, '');
+} else if (rawLink.cached_url) {
+  href = rawLink.cached_url;
+}
+---
+
+<li class="footer-link" {...storyblokEditable(blok)}>
+  <a class="footer-link__anchor text-fine-strong text-blue-3" href={href}>
+    {blok.text}
+  </a>
+</li>

@@ -21,14 +21,18 @@ import MaintenanceSection from '../components/MaintenanceSection.astro';
 const storyblokApi = useStoryblokApi();
 const version = import.meta.env.DEV ? 'draft' : 'published';
 
-// Fetch home + global nav
-const [{ data: homeData }, { data: navData }] = await Promise.all([
-  storyblokApi.get('cdn/stories/home', { version }),
-  storyblokApi.get('cdn/stories/global-nav', { version }),
-]);
+// Fetch home + global nav + global footer
+const [{ data: homeData }, { data: navData }, { data: footerData }] =
+  await Promise.all([
+    storyblokApi.get('cdn/stories/home', { version }),
+    storyblokApi.get('cdn/stories/global-nav', { version }),
+    storyblokApi.get('cdn/stories/global-footer', { version }), // 👈 new
+  ]);
 
 const homeStory = homeData.story;
 const navStory = navData.story;
+const footerStory = footerData.story;
+
 
 // All blocks on the home page
 const body: SbBlokData[] = homeStory?.content?.body ?? [];
@@ -62,11 +66,13 @@ const maintenanceBlok = body.find(
   (blok) => blok.component === 'maintenance_section');  
 
 const navBlok = navStory?.content;
+const footerBlok = footerStory?.content;
 ---
 
 <Layout
   title="NTREG - Home | The Truth About Residential Solar"
   navBlok={navBlok}
+  footerBlok={footerBlok}
 >
   {heroBlok && <HeroSection blok={heroBlok} />}
   {introBlok && <IntroductionSection blok={introBlok} />}

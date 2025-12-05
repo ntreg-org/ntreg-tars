@@ -1,0 +1,187 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { renderRichText } from '@storyblok/js';
+import FooterLink from './FooterLink.astro';
+
+type Asset = {
+  filename?: string;
+  alt?: string;
+};
+
+type LinkBlok = {
+  _uid: string;
+  component: string;
+  [key: string]: any;
+};
+
+type FooterBlok = {
+  _uid: string;
+  component: 'footer';
+  logo?: Asset;
+  headline?: string;
+  body?: string;
+  signup_image?: Asset;
+  signup_headline?: string;
+  signup_body?: string;
+  signup_email?: string;
+  signup_button?: string;
+  credit?: any; // Storyblok richtext
+  credit_image?: Asset;
+  copyright?: string;
+  links?: LinkBlok[];
+};
+
+const { blok } = Astro.props as { blok: FooterBlok };
+
+const creditHtml =
+  blok.credit ? renderRichText(blok.credit) : '';
+
+const creditImage = blok.credit_image;
+
+const hasSignup =
+  blok.signup_headline ||
+  blok.signup_body ||
+  blok.signup_email ||
+  blok.signup_button;
+---
+
+<footer
+  class="footer"
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid footer__grid">
+   
+    <!-- Top row: logo + copy, signup panel -->
+    <section class="footer__intro">
+      <div class="footer__intro-row">
+        {blok.logo?.filename && (
+          <div class="footer__logo-wrap">
+            <img
+              src={blok.logo.filename}
+              alt={blok.logo.alt || 'NTREG logo'}
+              class="footer__logo-img"
+              loading="lazy"
+            />
+          </div>
+        )}
+
+        <div class="footer__intro-text">
+          {blok.headline && (
+            <h2 class="footer__headline text-button-secondary text-brand-on-dark">
+              {blok.headline}
+            </h2>
+          )}
+
+          {blok.body && (
+            <p class="footer__body text-body-sm text-brand-on-dark">
+              {blok.body}
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <!-- newsletter -->
+    {hasSignup && (
+      <section class="footer__signup" aria-labelledby="footer-signup-heading">
+        <div class="footer__signup-inner">
+          <!-- Left: icon + copy -->
+          <div class="footer__signup-copy">
+            {blok.signup_image?.filename && (
+              <div class="footer__signup-image-wrap">
+                <img
+                  src={blok.signup_image.filename}
+                  alt={blok.signup_image.alt || ''}
+                  class="footer__signup-image"
+                  loading="lazy"
+                />
+              </div>
+            )}
+
+            <div class="footer__signup-text">
+              {blok.signup_headline && (
+                <h2
+                  id="footer-signup-heading"
+                  class="footer__signup-headline text-button-secondary text-brand-on-dark"
+                >
+                  {blok.signup_headline}
+                </h2>
+              )}
+
+              {blok.signup_body && (
+                <p class="footer__signup-body text-body-sm text-brand-on-dark">
+                  {blok.signup_body}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <!-- Right: email form -->
+          <form class="footer__signup-form" action="#" method="post">
+            <label class="footer__email-label">
+              {blok.signup_email && (
+                <span class="sr-only">{blok.signup_email}</span>
+              )}
+              <input
+                type="email"
+                name="email"
+                required
+                class="footer__email-input text-body-sm"
+                placeholder={blok.signup_email || 'Email address'}
+              />
+            </label>
+
+            <button
+              type="submit"
+              class="footer__button text-button-secondary text-brand-on-dark"
+            >
+              {blok.signup_button || 'Subscribe'}
+            </button>
+          </form>
+        </div>
+      </section>
+    )}
+   
+
+    <!-- Credit row -->
+    {creditHtml && (
+      <div class="footer__credit col-span-12">
+        <div class="footer__credit-inner">
+          <div
+            class="footer__credit-text text-fine-strong text-blue-3"
+            set:html={creditHtml}
+          />
+          {creditImage?.filename && (
+            <img
+              src={creditImage.filename}
+              alt={creditImage.alt || 'Credit logo'}
+              class="footer__credit-image"
+              loading="lazy"
+            />
+          )}
+          
+        </div>
+      </div>
+    )}
+
+    <!-- Links + copyright row -->
+    <div class="footer__bottom col-span-12">
+      <nav
+        class="footer__links-nav"
+        aria-label="Footer navigation"
+      >
+        <ul class="footer__links-list">
+          {blok.links?.map((linkBlok) => (
+            <FooterLink blok={linkBlok} />
+          ))}
+        </ul>
+      </nav>
+
+      {blok.copyright && (
+        <div class="footer__copyright text-fine text-blue-3">
+          {blok.copyright}
+        </div>
+      )}
+    </div>
+  </div>
+</footer>

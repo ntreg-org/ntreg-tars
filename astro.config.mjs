@@ -45,6 +45,8 @@ export default defineConfig({
         insurance_section: "components/InsuranceSection",
         maintenance_section: "components/MaintenanceSection",
         maintenance_item: "components/MaintenanceItem",
+        footer: "components/Footer",
+        footer_link: "components/FooterLink",
       },
 
       // This helps Storyblok's Visual Editor find your site
