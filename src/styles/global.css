@@ -460,13 +460,6 @@
   /* Hero                 */
   /* ------------------------------------------- */
 
-  /* Hero section structural helpers */
-  .hero-section__overlay {
-    position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-  }
-
   .hero-section__inner {
     position: relative;
     z-index: 10;
@@ -593,25 +586,47 @@
   }
 
   .nav-bar {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* logo | center | right */
     align-items: center;
-    justify-content: space-between;
-    padding-block: 16px; /* top/bottom spacing */
-    gap: 24px; /* safety gap if things get tight */
+    width: 100%; /* make the nav span the full grid width */
+    padding-block: 20px; /* a bit more vertical space */
+    column-gap: var(--space-6); /* space between logo / center / right */
   }
 
   .nav-center {
     display: flex;
     align-items: center;
-    gap: 32px; /* space between "Topics" & "Solar Contractor..." */
+    gap: var(--space-4); /* tighter gap between Topics and page title */
     font: 500 14px/1 var(--font-inter);
     color: #ffffff;
+    white-space: nowrap; /* keep title on one line */
+    justify-content: center; /* center Topics + title within the middle column */
   }
 
   .nav-right {
     display: flex;
     align-items: center;
-    gap: 24px; /* space between PDF and Donate */
+    gap: var(--space-6); /* space between PDF and Donate */
+    white-space: nowrap;
+    justify-content: flex-end; /* right edge of its grid column */
+  }
+  .nav-shell--solid {
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+  }
+
+  .nav-shell--solid .nav-link {
+    color: var(--brand-primary);
+  }
+
+  .nav-shell--solid .nav-link--topic::after {
+    color: var(--brand-primary);
+  }
+
+  .nav-shell--solid .nav-cta {
+    background-color: var(--brand-primary);
+    color: #ffffff;
   }
 
   .nav-link {
@@ -622,6 +637,22 @@
 
   .nav-link:hover {
     opacity: 0.9;
+  }
+
+  .nav-link--topic {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nav-link--topic::after {
+    content: "▾"; /* small caret icon */
+    font-size: 0.7em;
+    line-height: 1;
+  }
+
+  .nav-link--page-title {
+    font-weight: 600; /* make page title a bit stronger */
   }
 
   .nav-cta {
@@ -2995,5 +3026,165 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  /* ===========================
+   Question Section Layout
+   =========================== */
+
+  .question-section {
+    background-color: var(--white-100, #ffffff);
+  }
+
+  .question-section__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-8);
+    row-gap: var(--space-12);
+    align-items: flex-start;
+  }
+
+  .question-section__categories,
+  .question-section__items {
+    /* Mobile & tablet: each block takes the full 12-column width */
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 1024px) {
+    .question-section__categories {
+      /* Left column: 6 of 12 */
+      grid-column: 1 / span 6;
+    }
+
+    .question-section__items {
+      /* Right column: 6 of 12 */
+      grid-column: 7 / span 6;
+    }
+  }
+
+  .question-section__category-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row; /* mobile & tablet: horizontal strip */
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+  }
+
+  .question-section__category-item {
+    flex: 0 0 auto; /* important for the horizontal strip */
+  }
+
+  @media (min-width: 1024px) {
+    .question-section__category-list {
+      flex-direction: column; /* desktop: vertical rail */
+      overflow-x: visible;
+      padding-bottom: 0;
+    }
+    .question-section__category-item {
+      width: 100%;
+    }
+  }
+
+  .question-section__categories {
+    background-color: var(--grey-10);
+    margin-bottom: var(--space-8);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  @media (min-width: 1024px) {
+    .question-section__categories {
+      margin-bottom: 0;
+    }
+  }
+
+  /* Base category button */
+  .question-section__category-btn {
+    width: 100%;
+    border-radius: 0;
+    border: none;
+    padding: var(--space-4) var(--space-6);
+    background-color: transparent;
+    color: var(--brand-primary, #232f87);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+    font: inherit;
+  }
+
+  @media (min-width: 768px) {
+    .question-section__category-btn {
+      padding: var(--space-3) var(--space-5);
+    }
+  }
+
+  /* Active state */
+  .question-section__category-btn--active {
+    background-color: var(--brand-primary, #232f87);
+    color: var(--brand-on-dark, #ffffff);
+  }
+
+  /* Panel visibility helpers */
+  .question-section__panel {
+    margin-top: 0;
+  }
+
+  .question-section__panel--hidden {
+    display: none;
+  }
+
+  .question-section__panel--active {
+    display: block;
+  }
+
+  /* Individual Q&A item */
+  .question-section__item {
+    padding-block: var(--space-5);
+    border-bottom: 1px solid var(--grey-20, #e1e4ea);
+  }
+
+  .question-section__item:last-child {
+    border-bottom: none;
+  }
+
+  /* New type style: Inter 24px Medium for questions */
+  .text-question-heading {
+    font-family: var(
+      --font-inter,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Inter",
+      sans-serif
+    );
+    font-size: 24px;
+    line-height: 1.4;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--brand-primary);
+  }
+
+  /* Answer text wrapper */
+  .question-section__item-answer {
+    margin-top: var(--space-3);
+  }
+
+  /* Small tweak: tighten chip sizes on mobile */
+  @media (max-width: 767px) {
+    .question-section__category-btn {
+      padding: var(--space-2) var(--space-3);
+    }
+  }
+  /* Optional: hover state on desktop */
+  @media (min-width: 1024px) {
+    .question-section__category-btn:hover:not(
+        .question-section__category-btn--active
+      ) {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
   }
 }

@@ -1,7 +1,10 @@
 ---
+import { useStoryblokApi } from "@storyblok/astro";
+
 import Layout from "../layouts/layout.astro";
 import HeroSection from "../components/HeroSection.astro";
-import { useStoryblokApi } from "@storyblok/astro";
+import QuestionSection from "../components/QuestionSection.astro";
+
 
 const storyblokApi = useStoryblokApi();
 const version = import.meta.env.DEV ? "draft" : "published";
@@ -18,26 +21,26 @@ const pageStory  = pageData.story;
 const navBlok    = navData.story?.content;
 const footerBlok = footerData.story?.content;
 
+// All blocks on the solar contractor page
 const body = Array.isArray(pageStory?.content?.body)
   ? pageStory.content.body
   : [];
+  
+  const heroBlok = body.find(
+    (blok:any) => blok.component === 'hero_section');
+  const questionBlok = body.find(
+  (blok:any) => blok.component === 'question_section');
 ---
+
+
 
 <Layout
   title="Solar Contractor Questions | NTREG"
   navBlok={navBlok}
   footerBlok={footerBlok}
 >
-  {body.map((blok: any) => {
-    if (blok.component === "hero_section") {
-      return <HeroSection blok={blok} />;
-    }
+ {heroBlok && <HeroSection blok={heroBlok} />}
+  {questionBlok && <QuestionSection blok={questionBlok} />}
+  
 
-    // We'll fill these in later as you define more blocks
-    // if (blok.component === "question_section") {
-    //   return <QuestionSection blok={blok} />;
-    // }
-
-    return null;
-  })}
 </Layout>

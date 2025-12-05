@@ -1,0 +1,128 @@
+---
+import { storyblokEditable, renderRichText } from "@storyblok/astro";
+
+const { blok } = Astro.props;
+
+// Safe guards
+const categories = Array.isArray(blok?.categories) ? blok.categories : [];
+
+// Unique id so JS only touches this section instance
+const sectionId = blok?._uid ? `question-section-${blok._uid}` : "question-section";
+---
+
+<section
+  id={sectionId}
+  class="question-section py-section"
+  {...storyblokEditable(blok)}
+>
+  <div class="page-grid question-section__grid">
+    <!-- Categories column / strip -->
+    <div class="question-section__categories">
+      <ul class="question-section__category-list">
+        {categories.map((cat: any, index: number) => (
+          <li class="question-section__category-item">
+            <button
+              type="button"
+              class={`question-section__category-btn ${
+                index === 0 ? "question-section__category-btn--active" : ""
+              }`}
+              data-question-category={index}
+            >
+              <span class="question-section__category-label text-body-sm">
+                {cat?.title ?? ""}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Question list / panels -->
+    <div class="question-section__items">
+      {categories.map((cat: any, index: number) => {
+        const questions = Array.isArray(cat?.questions) ? cat.questions : [];
+
+        return (
+          <div
+            class={`question-section__panel ${
+              index === 0 ? "question-section__panel--active" : "question-section__panel--hidden"
+            }`}
+            data-question-panel={index}
+          >
+            {questions.map((q: any, qIndex: number) => (
+              <article class="question-section__item">
+                {q?.question && (
+                  <h3 class="question-section__item-question text-question-heading">
+                    {q.question}
+                  </h3>
+                )}
+
+              {q?.answer && (
+                <div
+                    class="question-section__item-answer text-body-sm text-brand-on-light"
+                    set:html={renderRichText(q.answer)}
+                ></div>
+                )}
+              </article>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- Inline behavior: tab switching -->
+  <script is:inline>
+    (() => {
+      const scriptEl = document.currentScript;
+      if (!scriptEl) return;
+
+      // Find the closest question-section <section> that contains this script
+      const root = scriptEl.closest("section.question-section");
+      if (!root) return;
+
+      const buttons = root.querySelectorAll("[data-question-category]");
+      const panels = root.querySelectorAll("[data-question-panel]");
+
+      if (!buttons.length || !panels.length) return;
+
+      const ACTIVE_BTN_CLASS = "question-section__category-btn--active";
+      const HIDDEN_PANEL_CLASS = "question-section__panel--hidden";
+      const ACTIVE_PANEL_CLASS = "question-section__panel--active";
+
+      const setActive = (index) => {
+        buttons.forEach((btn) => {
+          const idx = Number(btn.getAttribute("data-question-category"));
+          if (idx === index) {
+            btn.classList.add(ACTIVE_BTN_CLASS);
+          } else {
+            btn.classList.remove(ACTIVE_BTN_CLASS);
+          }
+        });
+
+        panels.forEach((panel) => {
+          const idx = Number(panel.getAttribute("data-question-panel"));
+          if (idx === index) {
+            panel.classList.add(ACTIVE_PANEL_CLASS);
+            panel.classList.remove(HIDDEN_PANEL_CLASS);
+          } else {
+            panel.classList.remove(ACTIVE_PANEL_CLASS);
+            panel.classList.add(HIDDEN_PANEL_CLASS);
+          }
+        });
+      };
+
+      // Wire up clicks
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.getAttribute("data-question-category"));
+          if (Number.isNaN(idx)) return;
+          setActive(idx);
+        });
+      });
+
+      // Ensure first tab is active on load
+      setActive(0);
+    })();
+  </script>
+</section>

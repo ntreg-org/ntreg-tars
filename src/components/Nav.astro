@@ -39,7 +39,7 @@ const donateHref =
   class="fixed inset-x-0 top-0 z-20"
   {...storyblokEditable(blok)}
 >
-  <div class="nav-shell">
+  <div class="nav-shell" data-nav-shell>
     <div class="page-grid">
       <div class="nav-bar">
         <!-- Left: Logo -->
@@ -60,7 +60,7 @@ const donateHref =
 
         <!-- Center: Navigation Links -->
         <nav class="nav-center">
-          {links.map((item) => {
+          {links.map((item, index) => {
             const label = item?.text ?? '';
             const href =
               item?.link?.url ??
@@ -69,10 +69,18 @@ const donateHref =
 
             if (!label) return null;
 
+            const classes = [
+              'nav-link',
+              index === 0 ? 'nav-link--topic' : '',
+              index === 1 ? 'nav-link--page-title' : ''
+            ]
+              .filter(Boolean)
+              .join(' ');
+
             return (
               <a
                 href={href}
-                class="nav-link"
+                class={classes}
                 data-blok-uid={item._uid}
               >
                 {label}
@@ -96,3 +104,42 @@ const donateHref =
     </div>
   </div>
 </header>
+</header>
+<script is:inline>
+  if (typeof window !== 'undefined') {
+    const shell = document.querySelector('[data-nav-shell]');
+
+    const computeThreshold = () => {
+      const hero = document.querySelector('.hero-section');
+      if (!hero || !shell) {
+        return 80; // fallback: switch after a small scroll
+      }
+      const rect = hero.getBoundingClientRect();
+      const scrollTop = window.scrollY || window.pageYOffset;
+      const heroBottom = rect.top + scrollTop + rect.height;
+      const navHeight = shell.offsetHeight || 0;
+      return heroBottom - navHeight;
+    };
+
+    let threshold = computeThreshold();
+
+    const onScroll = () => {
+      if (!shell) return;
+      if (window.scrollY > threshold) {
+        shell.classList.add('nav-shell--solid');
+      } else {
+        shell.classList.remove('nav-shell--solid');
+      }
+    };
+
+    const onResize = () => {
+      threshold = computeThreshold();
+      onScroll();
+    };
+
+    window.addEventListener('scroll', onScroll);
+    window.addEventListener('resize', onResize);
+
+    onScroll();
+  }
+</script>
