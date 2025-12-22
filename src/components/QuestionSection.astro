@@ -10,7 +10,7 @@ const categories = Array.isArray(blok?.categories) ? blok.categories : [];
 const sectionId = blok?._uid ? `question-section-${blok._uid}` : "question-section";
 ---
 
-<section
+<section id="question" data-anchor
   id={sectionId}
   class="question-section py-section"
   {...storyblokEditable(blok)}

@@ -2,10 +2,9 @@
 import { storyblokEditable } from '@storyblok/astro';
 
 const { blok } = Astro.props;
-
 const text = blok?.text || '';
 ---
 
-<div class="checklist-item text-body-sm" {...storyblokEditable(blok)}>
+<li class="candidate-checklist-item text-body-sm" {...storyblokEditable(blok)}>
   {text}
-</div>
+</li>

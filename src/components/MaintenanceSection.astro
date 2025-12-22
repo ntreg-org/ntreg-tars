@@ -29,7 +29,7 @@ const items: MaintenanceItemBlok[] = Array.isArray(blok.items) ? blok.items : []
 const sourceHtml = blok.source ? renderRichText(blok.source as any) : '';
 ---
 
-<section
+<section id="maintenance" data-anchor
   class="maintenance-section bg-brand-primary py-section"
   {...storyblokEditable(blok as any)}
 >

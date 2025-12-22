@@ -1,3 +1,110 @@
+/* Mobile panel should scroll (not the page behind it) */
+.nav-mobile-panel {
+  max-height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+/* Prevent background scroll when mobile menu is open */
+body.nav-scroll-locked {
+  overflow: hidden;
+  touch-action: none;
+}
+/* ------------------------------------------- */
+/* Mobile Topics accordion                     */
+/* ------------------------------------------- */
+
+.nav-mobile-accordion {
+  display: block;
+}
+
+.nav-mobile-accordion__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: 600 16px/1.2 var(--font-inter);
+  cursor: pointer;
+  text-align: left;
+}
+
+.nav-mobile-accordion__chev {
+  display: inline-block;
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: rotate(0deg);
+}
+
+.nav-mobile-accordion__btn.is-open .nav-mobile-accordion__chev {
+  transform: rotate(180deg);
+}
+
+/* Animated height (max-height) — more reliable than grid fr tracks across browsers */
+.nav-mobile-accordion__panel {
+  display: block;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: max-height;
+}
+
+/* Inner wrapper keeps padding/children in normal flow */
+.nav-mobile-accordion__panel-inner {
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+/* Ensure topic links behave like stacked rows inside the accordion */
+.nav-mobile-accordion__panel-inner .nav-mobile-link {
+  position: static;
+  display: block;
+  width: 100%;
+  white-space: normal;
+}
+
+/* When open (hidden removed), allow enough room for the full list */
+.nav-mobile-accordion__panel:not([hidden]) {
+  max-height: 1200px;
+}
+
+/* Slight indent for nested topic links */
+.nav-mobile-link--topic {
+  padding-left: 16px;
+}
+
+.nav-mobile-link--overview {
+  padding-left: 16px;
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-mobile-accordion__panel {
+    transition: none;
+  }
+
+  .nav-mobile-accordion__chev {
+    transition: none;
+  }
+}
+/* Smooth label swap for “Topics · Section” */
+.topics-trigger-label {
+  display: inline-block;
+  transition: opacity 120ms ease;
+  will-change: opacity;
+}
+
+.topics-trigger-label.is-fading {
+  opacity: 0;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -149,6 +256,19 @@
 
     --font-inter: "Inter", sans-serif;
     --font-poppins: "Poppins", sans-serif;
+
+    /* Layout tokens */
+    --nav-height: 120px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
@@ -164,6 +284,93 @@
 }
 
 @layer utilities {
+
+  /* Anchor offset for fixed nav */
+  /*
+    1) `scroll-padding-top` ensures any native/JS smooth scroll stops below the sticky nav.
+    2) `:target` + `[data-anchor]` ensure in-page anchor jumps never get covered.
+  */
+  html {
+    /* Ensure in-page scrolling (hash links / scrollIntoView) never lands under the sticky nav */
+    --nav-offset: calc(var(--nav-height) + 40px);
+    scroll-padding-top: var(--nav-offset);
+  }
+
+  [data-anchor],
+  :target {
+    scroll-margin-top: var(--nav-offset);
+  }
+
+  /* Fixed header clearance helper
+     Use when you want content to never scroll under the fixed nav. */
+  .nav-clearance {
+    padding-top: var(--nav-offset);
+  }
+  /*
+    Fixed/sticky nav *anchor* offset helper
+
+    ✅ Use for in-page anchor targets (hash links / scrollIntoView) when you
+       need the browser to land below the fixed nav without changing layout.
+
+    ⚠️ Do NOT use this as a general wrapper around normal content. The
+       negative margin intentionally pulls the section up, which will cause
+       the top of the content to sit underneath the fixed header.
+
+    For normal page flow clearance under the fixed nav, use `.nav-clearance`.
+  */
+  .nav-offset-anchor {
+    padding-top: var(--nav-offset);
+    margin-top: calc(var(--nav-offset) * -1);
+  }
+
+  /* Optional: make sure headings inside also respect the offset */
+  .nav-offset-anchor h1,
+  .nav-offset-anchor h2,
+  .nav-offset-anchor h3,
+  .nav-offset-anchor h4,
+  .nav-offset-anchor [id] {
+    scroll-margin-top: var(--nav-offset);
+  }
+
+  /* Screen-reader only (for accessible labels) */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ------------------------------------------- */
+  /* Section reveal (subtle entrance)            */
+  /* ------------------------------------------- */
+
+  /* Only apply the hidden state when JS is enabled */
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 260ms ease,
+      transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: opacity, transform;
+  }
+
+  .js [data-reveal].is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
   /* Padding utilities */
   .pt-section {
     padding-top: var(--space-20);
@@ -286,6 +493,15 @@
     letter-spacing: -0.01em;
     font-size: 1.5rem; /* mobile ~24px */
     line-height: 1.25;
+  }
+
+  /* Beware headline (Poppins 48px, regular) */
+  .text-h2-regular {
+    font-family: var(--font-poppins);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    font-size: 3rem; /* 48px */
+    line-height: 1.2;
   }
 
   @media (min-width: 1024px) {
@@ -412,6 +628,8 @@
 
   .page-grid {
     display: grid;
+    width: 100%;
+    box-sizing: border-box;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: 32px;
     padding-inline: clamp(24px, 6vw, 280px);
@@ -575,44 +793,222 @@
   /* Navigation                                  */
   /* ------------------------------------------- */
 
+  /* ------------------------------------------- */
+  /* Topics dropdown (desktop hover)              */
+  /* ------------------------------------------- */
+
+  .topics-wrapper {
+    position: relative;
+  }
+
+  .topics-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(6px) scale(0.98);
+
+    min-width: 220px;
+    padding: 8px 0;
+
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 150ms ease,
+      transform 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 30;
+  }
+
+  /* Hover bridge so the menu doesn't close when moving the mouse down */
+  .topics-dropdown::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -12px;
+    height: 12px;
+  }
+
+  /* Keep open for keyboard users too */
+  .topics-wrapper:focus-within .topics-dropdown,
+  .topics-wrapper.is-open .topics-dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  /* Show dropdown on hover (desktop) */
+  .topics-wrapper:hover .topics-dropdown,
+  .topics-wrapper.is-open .topics-dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  /* Accessible focus rings */
+  .nav-link:focus-visible,
+  .nav-cta:focus-visible,
+  .nav-menu-btn:focus-visible,
+  .topics-trigger:focus-visible,
+  .topics-item:focus-visible,
+  .nav-mobile-link:focus-visible,
+  .nav-mobile-cta:focus-visible,
+  .nav-mobile-accordion__btn:focus-visible {
+    outline: 2px solid rgb(255 255 255 / 0.65);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+
+  .nav-shell--solid .nav-link:focus-visible,
+  .nav-shell--solid .nav-cta:focus-visible,
+  .nav-shell--solid .nav-menu-btn:focus-visible,
+  .nav-shell--solid .topics-trigger:focus-visible,
+  .nav-shell--solid .topics-item:focus-visible {
+    outline-color: rgb(40 43 124 / 0.55);
+  }
+
+  /* Force-close dropdown (used when a topic is clicked) */
+  .topics-wrapper.is-force-closed .topics-dropdown {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* Individual topic links */
+  .topics-item {
+    display: block;
+    position: relative;
+    padding: 10px 16px;
+    font: 500 14px/1.4 var(--font-inter);
+    color: var(--brand-primary);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+
+  .topics-item:hover {
+    background-color: var(--grey-05);
+  }
+
+  /* Animated underline for hover/active */
+  .topics-item::after {
+    content: "";
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 6px;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.25;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 180ms ease;
+  }
+
+  /* Only show underline on hover, not persistent active */
+  .topics-item:hover::after {
+    transform: scaleX(1);
+  }
+
+  .topics-item.is-active {
+    background-color: var(--grey-10);
+    font-weight: 600;
+  }
+
+  /* Active indicator (subtle dot on the left) */
+  .topics-item.is-active::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.65;
+    transform: translateY(-50%);
+  }
+
+  .nav-mobile-link--topic.is-active {
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .nav-mobile-link--topic.is-active::before {
+    content: "•";
+    margin-right: 8px;
+  }
+
   .nav-shell {
+    width: 100%;
+    position: relative;
     /* gradient behind the nav */
-    background: linear-gradient(
+    background-image: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0.7),
       rgba(0, 0, 0, 0.4),
       transparent
     );
+    background-color: transparent;
+    /* smooth transition from gradient -> white sticky */
+    transition: background-color 200ms ease, box-shadow 200ms ease;
+    will-change: background-color, box-shadow;
+  }
+
+  .nav-viewport {
+    /* Full-viewport row that still respects the site gutters */
+    width: 100vw;
+    margin-inline: auto;
+    padding-inline: clamp(24px, 6vw, 280px);
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 1024px) {
+    .nav-viewport {
+      padding-inline: 108px;
+    }
   }
 
   .nav-bar {
+    /* 3-zone layout: left | centered (viewport) | right */
     display: grid;
-    grid-template-columns: auto 1fr auto; /* logo | center | right */
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    width: 100%; /* make the nav span the full grid width */
-    padding-block: 20px; /* a bit more vertical space */
-    column-gap: var(--space-6); /* space between logo / center / right */
+
+    width: 100%;
+    padding-block: 20px;
+    min-height: 80px;
+
+    /* allow the left/right zones to shrink without overflowing */
+    min-width: 0;
   }
 
   .nav-center {
+    justify-self: center;
     display: flex;
     align-items: center;
-    gap: var(--space-4); /* tighter gap between Topics and page title */
-    font: 500 14px/1 var(--font-inter);
+    gap: clamp(12px, 2.5vw, var(--space-4));
+    font: 500 clamp(13px, 1.1vw, 16px) / 1 var(--font-inter);
     color: #ffffff;
-    white-space: nowrap; /* keep title on one line */
-    justify-content: center; /* center Topics + title within the middle column */
+    white-space: nowrap;
   }
 
   .nav-right {
+    justify-self: end;
     display: flex;
     align-items: center;
-    gap: var(--space-6); /* space between PDF and Donate */
+    gap: clamp(12px, 2.5vw, var(--space-6));
     white-space: nowrap;
-    justify-content: flex-end; /* right edge of its grid column */
   }
   .nav-shell--solid {
     background: #ffffff;
+    background-image: none;
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
   }
 
@@ -630,7 +1026,7 @@
   }
 
   .nav-link {
-    font: 500 14px/1 var(--font-inter);
+    font: 500 clamp(13px, 1.1vw, 16px) / 1 var(--font-inter);
     color: #ffffff;
     text-decoration: none;
   }
@@ -645,10 +1041,17 @@
     gap: 4px;
   }
 
-  .nav-link--topic::after {
-    content: "▾"; /* small caret icon */
-    font-size: 0.7em;
-    line-height: 1;
+  /* Caret animation for Topics trigger */
+  .topics-caret {
+    display: inline-block;
+    transition: transform 150ms ease;
+    transform: rotate(0deg);
+  }
+
+  .topics-wrapper:hover .topics-caret,
+  .topics-wrapper:focus-within .topics-caret,
+  .topics-wrapper.is-open .topics-caret {
+    transform: rotate(180deg);
   }
 
   .nav-link--page-title {
@@ -675,8 +1078,9 @@
   /* Nav Logo ------------------------------------------------ */
 
   .nav-logo-wrapper {
-    width: 56px;
-    height: 56px;
+    width: clamp(56px, 6vw, 80px);
+    height: clamp(56px, 6vw, 80px);
+    flex: 0 0 auto;
   }
 
   @media (min-width: 768px) {
@@ -723,36 +1127,52 @@
 
   .intro-grid {
     /* page-grid already sets display: grid */
-    grid-template-columns: 1fr; /* 1 column on mobile */
+    grid-template-columns: 1fr; /* 1 column on mobile + tablet + small desktop */
     row-gap: var(--space-20);
     margin-top: var(--space-12);
   }
 
-  @media (min-width: 1024px) {
+  /* Only go 2-up once there is enough horizontal room */
+  @media (min-width: 1200px) {
     .intro-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 cards per row */
-      column-gap: var(--space-12);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-10);
     }
   }
+
   .intro-card {
     display: grid;
-    grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
-    column-gap: var(--space-10);
-    align-items: stretch;
+    align-items: start;
+
+    /* Allow the content column to shrink + wrap (prevents overlap at mid-wide viewports) */
+    grid-template-columns: minmax(160px, 240px) minmax(0, 1fr);
+    column-gap: clamp(16px, 2vw, var(--space-6));
+    min-width: 0;
   }
 
-  @media (min-width: 1024px) {
-    .intro-card {
-      grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
-      column-gap: var(--space-12);
-    }
+  /* Critical for CSS grid: let text column actually shrink instead of overflowing */
+  .intro-card__body,
+  .intro-card__quote,
+  .intro-card__meta {
+    min-width: 0;
   }
 
-  @media (max-width: 767.98px) {
-    .intro-card {
-      grid-template-columns: minmax(0, 1fr);
-      row-gap: var(--space-6);
-    }
+  /* Ensure long words/URLs never force overlap */
+  .intro-card__quote {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Media column: lock the media to a sane crop so it doesn't stretch with long text */
+  .intro-card__media {
+    margin: 0;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 0;
+
+    /* Desktop crop */
+    aspect-ratio: 3 / 4;
+    background: var(--grey-10);
   }
 
   .intro-card__media img {
@@ -760,11 +1180,48 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
+  }
+
+  /* Tablet (wide): keep image + copy side-by-side so portraits don't become full-bleed */
+  @media (min-width: 900px) and (max-width: 1023.98px) {
+    .intro-card {
+      grid-template-columns: minmax(200px, 280px) minmax(0, 1fr);
+      column-gap: clamp(16px, 2vw, var(--space-6));
+      row-gap: 0;
+      align-items: start;
+    }
+
+    .intro-card__media {
+      aspect-ratio: 3 / 4;
+      max-height: 360px;
+    }
+  }
+
+  /* Tablet (narrow) + mobile: stack image above content for better readability */
+  @media (max-width: 620px) {
+    .intro-card {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--space-6);
+    }
+
+    .intro-card__media {
+      /* Constrain portraits so they don't become full-width landscape on small screens */
+      width: min(420px, 100%);
+      margin-inline: auto;
+      aspect-ratio: 4 / 5;
+      max-height: 420px;
+    }
+  }
+
+  /* Improve readability: prevent extremely long line-lengths inside the quote */
+  .intro-card__quote {
+    max-width: 60ch;
   }
 
   .intro-card__body {
     background-color: var(--grey-05); /* Grey/05 card */
-    padding: var(--space-8);
+    padding: var(--space-6);
     display: flex;
     flex-direction: column;
     row-gap: var(--space-4);
@@ -827,71 +1284,157 @@
   /* Introduction modal                          */
   /* ------------------------------------------- */
 
-  .intro-modal {
+  /* Lock page scroll when a modal is open */
+  body.modal-open {
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  /* Backdrop is the fixed overlay (must cover the whole viewport) */
+  .intro-modal-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 40;
-    display: flex; /* JS overrides this to 'none' initially */
+    z-index: 100;
+
+    display: flex;
     justify-content: center;
-    align-items: flex-start;
-    padding: 40px 16px;
-    background-color: rgba(0, 0, 0, 0.6);
-    overflow-y: auto;
+    align-items: center;
+
+    padding: 24px 16px;
+    background-color: rgba(0, 0, 0, 0.55);
+
+    /* Keep the page from scrolling; the dialog content will scroll instead */
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .intro-modal__dialog {
+  /* Ensure native `hidden` always wins (our backdrop uses display:flex) */
+  .intro-modal-backdrop[hidden] {
+    display: none !important;
+  }
+
+  .intro-modal[hidden] {
+    display: none !important;
+  }
+
+  /* Dialog shell */
+  .intro-modal {
     position: relative;
-    width: 100%;
-    max-width: 960px;
-    background-color: #ffffff;
-    display: grid;
-    grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
-    column-gap: 40px;
-    padding: 40px;
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
+    width: min(960px, 100%);
+    max-height: calc(100vh - 48px); /* accounts for backdrop padding */
+
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.28);
+
+    overflow: hidden; /* clip inner scroll + keep corners clean */
   }
 
+  /* Inner layout: image left, content right */
+  .intro-modal__content {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+    column-gap: 40px;
+    padding: 32px;
+
+    /* Scroll happens here */
+    max-height: calc(100vh - 48px);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mobile: stack and adjust modal sizing so it never gets cut off */
   @media (max-width: 767.98px) {
-    .intro-modal__dialog {
-      grid-template-columns: minmax(0, 1fr);
-      row-gap: 24px; /* 6 * 4px */
-      padding: 24px; /* 6 * 4px */
+    .intro-modal-backdrop {
+      padding: 16px;
+      align-items: flex-start; /* lets content start near top on small screens */
     }
+
+    .intro-modal {
+      border-radius: 10px;
+      width: 100%;
+      max-height: calc(100vh - 32px);
+    }
+
+    .intro-modal__content {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 20px;
+      padding: 20px;
+      max-height: calc(100vh - 32px);
+    }
+  }
+
+  /* Media block (portrait-friendly crop) */
+  .intro-modal__media {
+    margin: 0;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--grey-10);
+    align-self: start;
+    aspect-ratio: 3 / 4;
+    max-height: 520px;
   }
 
   .intro-modal__media img {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: cover;
+    object-position: center;
   }
 
-  .intro-modal__content {
-    font-family: var(--font-inter);
-    font-size: 16px;
-    line-height: 24px;
+  /* Text */
+  .intro-modal__body {
+    margin-top: 20px;
+  }
+
+  .intro-modal__name {
+    margin: 0;
+    font-family: var(--font-poppins);
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1.15;
     color: #111827;
   }
 
-  .intro-modal__body {
-    margin-top: 24px; /* 6 * 4px */
+  .intro-modal__title {
+    margin: 10px 0 0;
   }
 
+  /* Rich text spacing */
+  .intro-modal__richtext > :first-child {
+    margin-top: 0;
+  }
+
+  .intro-modal__richtext p {
+    margin: 0 0 16px;
+  }
+
+  /* Close button (top-right) */
   .intro-modal__close {
     position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 40px;
-    height: 40px;
-    border-radius: 9999px;
+    top: 14px;
+    right: 14px;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
     border: none;
-    background-color: #282b7c;
+    background-color: var(--brand-primary);
     color: #ffffff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    z-index: 2;
+    flex: 0 0 auto;
+  }
+
+  .intro-modal__close:hover {
+    opacity: 0.95;
   }
 
   .intro-modal__close:focus-visible {
@@ -1001,6 +1544,27 @@
     font-weight: 400;
     font-size: 1rem;
     line-height: 1.5;
+
+    /* Force white text even if Storyblok inserts inline color styles */
+    color: var(--white-90) !important;
+  }
+
+  /* Storyblok rich text can output nested tags and inline styles (e.g. <span style="color:#000">) */
+  .benefits-carousel__body * {
+    color: inherit !important;
+  }
+
+  /* Ensure links also stay white */
+  .benefits-carousel__body a,
+  .benefits-carousel__body a:link,
+  .benefits-carousel__body a:visited,
+  .benefits-carousel__body a:hover,
+  .benefits-carousel__body a:active,
+  .benefits-carousel__body a:focus {
+    color: inherit !important;
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+    text-underline-offset: 2px;
   }
 
   @media (min-width: 1024px) {
@@ -1054,6 +1618,25 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     padding-bottom: var(--space-4); /* breathing room for scrollbar */
+  }
+
+  /* --- Benefits carousel full-bleed (slides past page gutters) --- */
+  .benefits-carousel--bleed .benefits-carousel__viewport {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+
+    /* Keep the first card aligned with the page-grid content */
+    padding-left: clamp(24px, 6vw, 280px);
+    padding-right: clamp(24px, 6vw, 280px);
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 1024px) {
+    .benefits-carousel--bleed .benefits-carousel__viewport {
+      padding-left: 108px;
+      padding-right: 108px;
+    }
   }
 
   .benefits-carousel__track {
@@ -1130,13 +1713,64 @@
     margin-top: 0;
   }
 
+  /* Source text (force white-50 for Storyblok rich text + links) */
   .benefits-carousel__source-text {
-    color: var(--white-50);
+    color: var(--white-50) !important;
   }
 
-  .benefits-carousel__source-text a {
+  /* Storyblok rich text can output nested tags; force everything to inherit */
+  .benefits-carousel__source-text * {
+    color: inherit !important;
+  }
+
+  /* Links should also be white-50 (including visited states) */
+  .benefits-carousel__source-text a,
+  .benefits-carousel__source-text a:link,
+  .benefits-carousel__source-text a:visited,
+  .benefits-carousel__source-text a:hover,
+  .benefits-carousel__source-text a:active,
+  .benefits-carousel__source-text a:focus {
+    color: inherit !important;
     text-decoration: underline;
-    color: inherit;
+    text-decoration-color: currentColor;
+    text-underline-offset: 2px;
+  }
+
+  .benefits-carousel__source-text a:hover {
+    opacity: 0.9;
+  }
+
+  .benefits-carousel__source-text a:focus-visible {
+    outline: 2px solid rgb(255 255 255 / 0.55);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* ------------------------------------------- */
+  /* Solar Questions: sticky categories offset   */
+  /* ------------------------------------------- */
+
+  /*
+    The categories column is `position: sticky` so it stays visible while
+    scrolling questions. Because the main nav is `position: fixed`, the sticky
+    element MUST be offset by the nav height, otherwise it will slide underneath.
+
+    NOTE: There is (or was) a competing rule setting `top: 0;` which causes the
+    categories strip to hide behind the fixed header. We force the correct offset
+    here.
+  */
+  .question-section__categories {
+    position: sticky;
+    top: var(--nav-offset) !important;
+    align-self: start;
+
+    /* Ensure it paints above the section content, but below the global nav */
+    z-index: 5;
+
+    /* Keep the sticky panel usable on shorter viewports */
+    max-height: calc(100vh - var(--nav-offset) - var(--space-6));
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* ------------------------------------------- */
@@ -1205,9 +1839,42 @@
     display: flex;
     gap: var(--space-6);
     border-bottom: 1px solid var(--grey-30);
-    overflow-x: auto;
     padding-bottom: 2px;
     white-space: nowrap;
+    overflow: visible;
+  }
+
+  /* Mobile/tablet: use a dropdown instead of a horizontally scrolling tab row */
+  .tab-section__select-wrap {
+    display: none;
+    width: 100%;
+    margin-top: var(--space-4);
+  }
+
+  .tab-section__select {
+    width: 100%;
+    padding: 14px 14px;
+    border: 1px solid var(--grey-30);
+    background: #ffffff;
+    color: var(--brand-text-main);
+    border-radius: 10px;
+    font: 600 16px/1.2 var(--font-inter);
+  }
+
+  .tab-section__select:focus-visible {
+    outline: 2px solid rgb(40 43 124 / 0.55);
+    outline-offset: 2px;
+  }
+
+  /* Below desktop: hide the tablist and show the select */
+  @media (max-width: 1023.98px) {
+    .tab-section__tab-list {
+      display: none;
+    }
+
+    .tab-section__select-wrap {
+      display: block;
+    }
   }
 
   .tab-section__tab {
@@ -1345,102 +2012,184 @@
   }
 
   /* ------------------------------------------- */
-  /* Candidate section                           */
+  /* Candidate section (v2 layout)               */
   /* ------------------------------------------- */
 
   .candidate-section {
     background: linear-gradient(to bottom, var(--green-2), var(--white-90));
   }
 
-  .candidate-section__image-wrap {
+  /* Grid: 2 columns on desktop, stacked on tablet/mobile */
+  .candidate-v2 {
+    row-gap: var(--space-12);
+  }
+
+  .candidate-v2__left,
+  .candidate-v2__right {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .candidate-v2 {
+      row-gap: 0;
+    }
+
+    .candidate-v2__left {
+      grid-column: 1 / span 6;
+    }
+
+    .candidate-v2__right {
+      grid-column: 7 / span 6;
+      align-self: start;
+    }
+  }
+
+  /* Image */
+  .candidate-v2__image {
+    margin: 0;
     display: flex;
     justify-content: center;
-    margin-bottom: var(--space-8);
   }
 
-  .candidate-section__image {
-    width: 230px;
-    height: 93px;
-    object-fit: contain;
+  .candidate-v2__image img {
     display: block;
-  }
-
-  @media (min-width: 768px) {
-    .candidate-section__image {
-      width: 388px;
-      height: 157px;
-    }
+    width: 100%;
+    height: auto;
+    max-width: 520px;
+    object-fit: contain;
   }
 
   @media (min-width: 1024px) {
-    .candidate-section__image {
-      width: 462px;
-      height: 187px;
+    .candidate-v2__image {
+      justify-content: flex-start;
     }
   }
 
-  .candidate-section__content {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  .candidate-section__headline {
+  /* Right column typography */
+  .candidate-v2__headline {
     margin: 0 0 var(--space-4);
+    color: var(--green-13);
   }
 
-  /* Desktop: promote to text-h2 scale */
   @media (min-width: 1024px) {
-    .candidate-section__headline {
-      font-size: 3rem; /* 48px, same as text-h2 desktop */
+    .candidate-v2__headline {
+      font-size: 3rem;
       line-height: 1.2;
-      color: var(--green-13);
     }
   }
-
-  /* On smaller screens, keep text-h3 scale + green 13 */
-  @media (max-width: 1023.98px) {
-    .candidate-section__headline {
-      color: var(--green-13);
-    }
-  }
-
-  /* Base typography from text-body-sm */
 
   @media (min-width: 1024px) {
-    /* Desktop: match text-body-md size */
-    .candidate-section__body {
+    .candidate-v2__body {
       font-size: 1.5rem;
       line-height: 1.5;
     }
   }
 
-  .candidate-section__source {
+  .candidate-v2__source {
     margin-top: var(--space-6);
     color: var(--grey-60);
   }
 
-  /* Checklist row */
-  /* page-grid handles horizontal padding */
-
-  .candidate-section__checklist-viewport {
-    overflow: hidden;
+  /* Checklist container */
+  .candidate-v2__checklist {
+    margin-top: var(--space-10);
+    overflow: visible; /* allow full-bleed layout on tablet/mobile */
   }
 
-  .candidate-section__checklist-track {
+  /* Base (tablet/mobile): single-row track with subtle hover shift */
+  .candidate-v2__checklist-track {
     display: flex;
     gap: var(--space-4);
-    will-change: transform;
-    transition: transform 0.2s ease-out;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    /* swipe carousel */
+    width: max-content;
   }
 
-  .checklist-item {
+  @media (prefers-reduced-motion: reduce) {
+    .candidate-v2__checklist {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Desktop: 2x2 grid under the image */
+  @media (min-width: 1024px) {
+    .candidate-v2__checklist {
+      overflow: visible;
+    }
+
+    .candidate-v2__checklist-track {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+      margin-top: var(--space-8);
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
+  /* Checklist items */
+  .candidate-checklist-item {
     padding: var(--space-6);
     background-color: var(--green-1);
     color: var(--green-12);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    white-space: nowrap;
+
+    /* allow long labels to wrap instead of spilling out */
+    white-space: normal;
+    text-align: center;
+    max-width: 100%;
+    min-width: 0;
+
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    scroll-snap-align: start;
+  }
+
+  /* Tablet/mobile: slightly tighter pills */
+  @media (max-width: 1023.98px) {
+    .candidate-checklist-item {
+      padding: 14px 16px;
+      font-size: 1rem;
+      line-height: 1.4;
+
+      /* cap pill width so text wraps instead of forcing extra-wide cards */
+      max-width: min(340px, 80vw);
+    }
+  }
+
+  /* Tablet/mobile: full-bleed swipe carousel that still aligns the first item to the gutter */
+  @media (max-width: 1023.98px) {
+    .candidate-v2__checklist {
+      /* full-bleed past page gutters */
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-right: calc(50% - 50vw);
+
+      /* keep first/last items aligned to your site gutters */
+      padding-left: clamp(24px, 6vw, 280px);
+      padding-right: clamp(24px, 6vw, 280px);
+      box-sizing: border-box;
+
+      /* this is the scrolling viewport */
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+
+      /* a little breathing room for iOS scrollbar */
+      padding-bottom: 6px;
+    }
+
+    .candidate-checklist-item {
+      scroll-snap-align: start;
+    }
   }
 
   /* ------------------------------------------- */
@@ -1547,6 +2296,78 @@
 
   .solution-section__source-text {
     color: var(--grey-80);
+  }
+
+  /* --- Solution item: SECOND-TO-LAST styling only --- */
+  /* Target the 2nd-to-last SolutionItem in the list */
+  .solution-section__items > .solution-item:nth-last-child(2) {
+    position: relative;
+  }
+
+  /* Desktop: split body copy into two columns */
+  @media (min-width: 1024px) {
+    .solution-section__items
+      > .solution-item:nth-last-child(2)
+      .solution-item__body {
+      column-count: 2;
+      column-gap: var(--space-8);
+    }
+  }
+
+  /* Tablet: force single column */
+  @media (min-width: 480px) and (max-width: 1023.98px) {
+    .solution-section__items
+      > .solution-item:nth-last-child(2)
+      .solution-item__body {
+      column-count: 1;
+      column-gap: normal;
+    }
+  }
+
+  /* Mobile: stack with a constrained image height (no background overlay) */
+  @media (max-width: 479.98px) {
+    .solution-section__items > .solution-item:nth-last-child(2) {
+      overflow: visible;
+    }
+
+    /* Ensure inner/content stays in normal flow */
+    .solution-section__items
+      > .solution-item:nth-last-child(2)
+      .solution-item__inner {
+      position: static;
+      z-index: auto;
+      background: transparent;
+      padding: 0;
+    }
+
+    /* Stack main area so image sits above copy */
+    .solution-section__items
+      > .solution-item:nth-last-child(2)
+      .solution-item__main {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    /* Make image full width with a balanced, accessible height */
+    .solution-section__items
+      > .solution-item:nth-last-child(2)
+      .solution-item__image-wrap {
+      margin: 0;
+      width: 100%;
+      overflow: hidden;
+      background: var(--grey-10);
+    }
+
+    .solution-section__items
+      > .solution-item:nth-last-child(2)
+      .solution-item__image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
   }
 
   /* Solution Items */
@@ -1812,37 +2633,99 @@
         - Headline/body left, image right
   */
 
-  @media (min-width: 768px) {
+  /* Tablet: prioritize readable copy, let image shrink */
+  @media (min-width: 768px) and (max-width: 1023.98px) {
     .solution-item--5 .solution-item__inner {
       display: grid;
-      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      /* keep copy from getting too narrow */
+      grid-template-columns: minmax(340px, 1fr) minmax(220px, 320px);
       column-gap: var(--space-8);
-      row-gap: var(--space-8);
-      align-items: flex-start;
+      row-gap: var(--space-6);
+      align-items: start;
+    }
+
+    .solution-item--5 .solution-item__main {
+      display: contents;
     }
 
     .solution-item--5 .solution-item__header,
-    .solution-item--5 .solution-item__main {
+    .solution-item--5 .solution-item__body,
+    .solution-item--5 .solution-item__lists {
       grid-column: 1 / 2;
+      min-width: 0;
     }
 
     .solution-item--5 .solution-item__image-wrap {
       grid-column: 2 / 3;
-      align-self: center;
+      grid-row: 1 / span 3;
+      align-self: start;
+      justify-self: end;
       display: flex;
       justify-content: flex-end;
+      margin-top: 0;
+    }
+  }
+
+  /* Desktop: allow bigger image, but still responsive */
+  @media (min-width: 1024px) {
+    .solution-item--5 .solution-item__inner {
+      display: grid;
+      /* image grows up to 596px, but shrinks first when space is tight */
+      grid-template-columns: minmax(420px, 1fr) minmax(
+          280px,
+          clamp(320px, 40vw, 596px)
+        );
+      column-gap: var(--space-12);
+      row-gap: var(--space-6);
+      align-items: start;
+    }
+
+    .solution-item--5 .solution-item__main {
+      display: contents;
+    }
+
+    .solution-item--5 .solution-item__header,
+    .solution-item--5 .solution-item__body,
+    .solution-item--5 .solution-item__lists {
+      grid-column: 1 / 2;
+      min-width: 0;
+    }
+
+    .solution-item--5 .solution-item__image-wrap {
+      grid-column: 2 / 3;
+      grid-row: 1 / span 3;
+      align-self: start;
+      justify-self: end;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0;
     }
   }
 
   .solution-item--5 .solution-item__image {
     width: 100%;
-    max-width: 596px;
     height: auto;
+    /* cap on large screens, but allow smaller sizes on tablet */
+    max-width: 596px;
   }
 
   @media (min-width: 768px) and (max-width: 1023.98px) {
     .solution-item--5 .solution-item__image {
-      max-width: 362px;
+      max-width: 320px;
+    }
+  }
+
+  /* Mobile: stack, with image under the copy */
+  @media (max-width: 767.98px) {
+    .solution-item--5 .solution-item__main {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    .solution-item--5 .solution-item__image-wrap {
+      order: 3;
+      margin-top: 0;
     }
   }
 
@@ -1876,6 +2759,18 @@
     margin: 0;
   }
 
+  /* Keep paragraphs readable (don’t stretch across the full viewport on larger screens) */
+  .installation-section__body {
+    max-width: 60ch;
+  }
+
+  @media (max-width: 767.98px) {
+    /* On small screens, allow full width for accessibility */
+    .installation-section__body {
+      max-width: none;
+    }
+  }
+
   @media (min-width: 1024px) {
     .installation-section__body {
       font-size: 1.5rem;
@@ -1883,48 +2778,71 @@
     }
   }
 
-  /* Grid placement for bodies & images */
+  /* Explicit alternating 2-column layout for bodies & images (desktop/tablet) */
   @media (min-width: 768px) {
-    /* Body 1 + 3: 7 columns on the left */
-    .installation-section__body--1,
-    .installation-section__body--3 {
-      grid-column: 1 / span 7;
+    /* Use clear 2-column rhythm like the mock (text/image alternating) */
+    .installation-section__header {
+      grid-column: 1 / span 6;
     }
 
-    /* Body 2: 5 columns on the far right */
-    .installation-section__body--2 {
-      grid-column: 8 / 13;
+    /* Row 2: text left, image right */
+    .installation-section__body--1 {
+      grid-column: 1 / span 6;
+      grid-row: 2;
+      align-self: start;
+      justify-self: start;
     }
 
-    /* Image 1 & 3: right side */
-    .installation-section__image--1,
-    .installation-section__image--3 {
-      grid-column: 8 / 13;
+    .installation-section__image--1 {
+      grid-column: 7 / span 6;
+      grid-row: 2;
+      align-self: start;
       justify-self: end;
     }
 
-    /* Image 2: left side */
+    /* Row 3: image left, text right */
     .installation-section__image--2 {
-      grid-column: 1 / span 7;
+      grid-column: 1 / span 6;
+      grid-row: 3;
+      align-self: start;
       justify-self: start;
+    }
+
+    .installation-section__body--2 {
+      grid-column: 7 / span 6;
+      grid-row: 3;
+      align-self: start;
+      justify-self: start;
+    }
+
+    /* Row 4: text left, image right */
+    .installation-section__body--3 {
+      grid-column: 1 / span 6;
+      grid-row: 4;
+      align-self: start;
+      justify-self: start;
+    }
+
+    .installation-section__image--3 {
+      grid-column: 7 / span 6;
+      grid-row: 4;
+      align-self: start;
+      justify-self: end;
+    }
+
+    /* Source always full width at the bottom */
+    .installation-section__source {
+      grid-column: 1 / -1;
+      grid-row: 5;
     }
   }
 
-  /* Shared image wrapper + top padding */
+  /* Shared image wrapper + alignment tweak */
   .installation-section__image {
     margin: 0;
   }
-
-  @media (min-width: 768px) and (max-width: 1023.98px) {
-    .installation-section__image {
-      padding-top: 40px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .installation-section__image {
-      padding-top: 74px;
-    }
+  .installation-section__image {
+    align-self: start;
   }
 
   .installation-section__image-media {
@@ -2266,7 +3184,6 @@
 
   .beware-example-card {
     padding: var(--space-4);
-    background-color: var(--grey-05);
     max-height: 544px;
     display: flex;
     flex-direction: column;
@@ -2289,18 +3206,28 @@
     margin-top: var(--space-16);
     background-color: var(--green-13);
     padding: var(--space-12) 0;
+
+    /* Full-bleed background (no white gutters) */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
   }
 
+  /* Inner grid: apply gutters once (not per column) */
   .beware-section__tactics-inner {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     row-gap: var(--space-8);
+
+    padding-inline: clamp(24px, 6vw, 280px);
+    box-sizing: border-box;
   }
 
+  /* Remove the old per-column padding */
   .beware-section__tactics-headline-wrap,
   .beware-section__tactics-items,
   .beware-section__tactics-image {
-    padding-inline: clamp(24px, 6vw, 280px);
+    padding-inline: 0;
   }
 
   .beware-section__tactics-headline {
@@ -2315,6 +3242,11 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+  }
+
+  /* Keep the list readable (avoid overly long line-lengths) */
+  .beware-section__tactics-items {
+    max-width: 68ch;
   }
 
   .beware-tactic-list-item {
@@ -2340,16 +3272,17 @@
     object-fit: cover;
   }
 
-  /* Desktop: 3 columns (headline / list / image) */
+  /* Desktop: 3 columns (headline / list / image) — tighter spacing */
   @media (min-width: 1024px) {
     .beware-section__tactics-inner {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      column-gap: var(--space-12);
-    }
+      grid-template-columns:
+        minmax(240px, 0.9fr)
+        minmax(320px, 1.2fr)
+        minmax(280px, 1fr);
+      column-gap: var(--space-8); /* reduced from space-12 */
+      align-items: start;
 
-    .beware-section__tactics-headline-wrap,
-    .beware-section__tactics-items,
-    .beware-section__tactics-image {
+      /* Match your page-grid desktop gutters */
       padding-inline: 108px;
     }
 
@@ -2381,9 +3314,16 @@
     }
   }
 
+  /* Source footer: align to the same gutters as the band */
   .beware-section__source {
     margin-top: var(--space-6);
     padding-inline: clamp(24px, 6vw, 280px);
+  }
+
+  @media (min-width: 1024px) {
+    .beware-section__source {
+      padding-inline: 108px;
+    }
   }
 
   .beware-section__source-text {
@@ -2498,16 +3438,23 @@
   .loan-item__icon {
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    min-height: 24px;
     border-radius: 9999px;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     background-color: var(--yellow-8, #f7c948);
+    line-height: 1; /* prevent font metrics from stretching the circle */
   }
 
   .loan-item__icon::before {
     content: "→";
-    font-size: 0.75rem;
+    font-size: 12px; /* explicit size instead of rem for consistency */
+    line-height: 1;
+    display: block;
   }
 
   .loan-item__body {
@@ -3187,4 +4134,158 @@
       background-color: rgba(255, 255, 255, 0.04);
     }
   }
+
+  /* Mobile menu button (hidden on desktop) */
+  .nav-menu-btn {
+    display: none;
+    font: 600 14px/1 var(--font-inter);
+    color: #ffffff;
+    background: transparent;
+    border: 0;
+    padding: 8px 10px;
+    border-radius: 9999px;
+    cursor: pointer;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav-menu-btn:hover {
+    opacity: 0.9;
+  }
+
+  .nav-shell--solid .nav-menu-btn {
+    color: var(--brand-primary);
+  }
+
+  /* Mobile dropdown panel */
+  .nav-mobile-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    background: #ffffff;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+  }
+
+  .nav-mobile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .nav-mobile-link {
+    color: var(--brand-primary);
+    text-decoration: none;
+    font: 600 16px/1.2 var(--font-inter);
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--grey-10);
+  }
+
+  .nav-mobile-link:hover {
+    background: var(--grey-20);
+  }
+
+  .nav-mobile-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font: 700 16px/1 var(--font-inter);
+    padding: 12px 16px;
+    border-radius: 9999px;
+    background: var(--brand-primary);
+    color: #ffffff;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 1023.98px) {
+    /* Hide center links + desktop right actions */
+    .nav-center {
+      display: none;
+    }
+
+    .nav-right .nav-link,
+    .nav-right .nav-cta {
+      display: none;
+    }
+
+    /* Show the Menu button */
+    .nav-menu-btn {
+      display: inline-flex;
+    }
+  }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .topics-dropdown {
+    transition: none;
+  }
+
+  .topics-caret {
+    transition: none;
+  }
+
+  .topics-item::after {
+    transition: none;
+  }
+  .topics-item {
+    transition: none;
+  }
+}
+
+/* Prevent background scroll when mobile menu is open */
+body.nav-scroll-locked {
+  overflow: hidden;
+  /* helps on some mobile browsers */
+  touch-action: none;
+}
+
+/* Mobile panel should be the scroll container */
+.nav-mobile-panel {
+  max-height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ------------------------------------------- */
+/* Maintenance                                 */
+/* ------------------------------------------- */
+
+/* =========================
+   Maintenance Item (icon)
+   ========================= */
+
+.maintenance-item__icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 9999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* circle background stays as the yellow pill */
+  background-color: var(--yellow-10-primary);
+
+  /* arrow color should be Blue 10 */
+  color: var(--blue-10-primary);
+
+  line-height: 1; /* prevent font metrics from stretching the circle */
+}
+
+.maintenance-item__icon::before {
+  content: "→";
+  font-size: 12px; /* fixed for consistent rendering */
+  line-height: 1;
+  display: block;
+  color: currentColor;
+}
+
+  /* If the nav is position:fixed on a page (no hero overlay), add this to the main wrapper */
+  .has-fixed-nav-offset {
+    padding-top: var(--nav-height);
+  }

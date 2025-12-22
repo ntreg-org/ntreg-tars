@@ -16,7 +16,7 @@ const modalBodyHtml = blok?.modal_body ? renderRichText(blok.modal_body) : '';
 const modalTitleId = `intro-modal-title-${blok?._uid ?? 'card'}`;
 ---
 
-<article
+<article 
   class="intro-card"
   {...storyblokEditable(blok)}
   data-intro-card
@@ -120,38 +120,136 @@ const modalTitleId = `intro-modal-title-${blok?._uid ?? 'card'}`;
 </article>
 
 <script is:inline>
-  window.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-intro-card]').forEach((card) => {
-      const openBtn = card.querySelector('[data-intro-open]');
-      const closeBtn = card.querySelector('[data-intro-close]');
-      const backdrop = card.querySelector('[data-intro-backdrop]');
+  (function () {
+    function initIntroModals() {
+      document.querySelectorAll('[data-intro-card]').forEach((card) => {
+        const openBtn = card.querySelector('[data-intro-open]');
+        const closeBtn = card.querySelector('[data-intro-close]');
+        const backdrop = card.querySelector('[data-intro-backdrop]');
+        const dialog = backdrop?.querySelector('[role="dialog"]');
 
-      if (!openBtn || !closeBtn || !backdrop) return;
+        if (!openBtn || !closeBtn || !backdrop || !dialog) return;
 
-      const openModal = () => {
-        backdrop.hidden = false;
-        backdrop.setAttribute('aria-hidden', 'false');
-      };
+        // Avoid double-binding
+        if (backdrop.dataset.bound === 'true') return;
+        backdrop.dataset.bound = 'true';
 
-      const closeModal = () => {
+        // Always start closed
         backdrop.hidden = true;
         backdrop.setAttribute('aria-hidden', 'true');
-      };
 
-      openBtn.addEventListener('click', openModal);
-      closeBtn.addEventListener('click', closeModal);
+        let lastActiveEl = null;
 
-      backdrop.addEventListener('click', (event) => {
-        if (event.target === backdrop) {
-          closeModal();
+        // Remember where this backdrop originally lived so we can restore it
+        const originalParent = backdrop.parentNode;
+        const originalNextSibling = backdrop.nextSibling;
+
+        const getFocusable = () => {
+          return Array.from(
+            dialog.querySelectorAll(
+              'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+            )
+          ).filter((el) => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true');
+        };
+
+        const trapTab = (event) => {
+          if (event.key !== 'Tab') return;
+          const focusables = getFocusable();
+          if (focusables.length === 0) return;
+
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        };
+
+        const onKeydown = (event) => {
+          if (event.key === 'Escape') {
+            closeModal();
+            return;
+          }
+          trapTab(event);
+        };
+
+        function openModal() {
+          lastActiveEl = document.activeElement;
+
+          // Portal to <body> so fixed overlay covers the entire site
+          if (backdrop.parentNode !== document.body) {
+            document.body.appendChild(backdrop);
+          }
+
+          backdrop.hidden = false;
+          backdrop.setAttribute('aria-hidden', 'false');
+          document.body.classList.add('modal-open');
+
+          // Focus close button for accessibility
+          closeBtn.focus();
+
+          document.addEventListener('keydown', onKeydown);
         }
-      });
 
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-          closeModal();
+        function closeModal() {
+          backdrop.hidden = true;
+          backdrop.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('modal-open');
+          document.removeEventListener('keydown', onKeydown);
+
+          // Restore the backdrop back into the card (keeps Storyblok DOM tidy)
+          if (originalParent && backdrop.parentNode === document.body) {
+            if (originalNextSibling && originalNextSibling.parentNode === originalParent) {
+              originalParent.insertBefore(backdrop, originalNextSibling);
+            } else {
+              originalParent.appendChild(backdrop);
+            }
+          }
+
+          // Restore focus
+          if (lastActiveEl && typeof lastActiveEl.focus === 'function') {
+            lastActiveEl.focus();
+          }
         }
+
+        // Open / close
+        openBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal();
+        });
+
+        closeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeModal();
+        });
+
+        // Click backdrop to close
+        backdrop.addEventListener('click', (event) => {
+          if (event.target === backdrop) closeModal();
+        });
+
+        // Prevent clicks inside dialog from closing
+        dialog.addEventListener('click', (e) => e.stopPropagation());
+
+        // Safety: ensure we don't leave the page scroll-locked
+        window.addEventListener('pagehide', () => {
+          document.body.classList.remove('modal-open');
+        });
       });
-    });
-  });
+    }
+
+    // Run on initial load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initIntroModals);
+    } else {
+      initIntroModals();
+    }
+
+    // Run again on Astro client-side navigation (if enabled)
+    document.addEventListener('astro:page-load', initIntroModals);
+  })();
 </script>

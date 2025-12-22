@@ -11,7 +11,7 @@ const bodyLeft = blok?.body_left || '';
 const bodyRight = blok?.body_right || '';
 ---
 
-<section
+<section id="tab" data-anchor
   class="tab-section py-section"
   data-tab-section
   {...storyblokEditable(blok)}
@@ -42,6 +42,7 @@ const bodyRight = blok?.body_right || '';
     {/* Tabs row */}
     {tabs.length > 0 && (
       <div class="col-span-12 tab-section__tabs">
+        {/* Desktop / wide screens: tablist */}
         <div
           class="tab-section__tab-list"
           role="tablist"
@@ -60,11 +61,32 @@ const bodyRight = blok?.body_right || '';
               aria-controls={`tab-panel-${blok._uid}-${tab._uid}`}
               id={`tab-${blok._uid}-${tab._uid}`}
               data-tab-target={`tab-panel-${blok._uid}-${tab._uid}`}
+              data-tab-index={index}
               tabindex={index === 0 ? 0 : -1}
             >
               {tab.title}
             </button>
           ))}
+        </div>
+
+        {/* Mobile / tablet: select-based navigation */}
+        <div class="tab-section__select-wrap">
+          <label class="sr-only" for={`tab-select-${blok._uid}`}>Choose a topic</label>
+          <select
+            id={`tab-select-${blok._uid}`}
+            class="tab-section__select"
+            data-tab-select
+            aria-label="Choose a topic"
+          >
+            {tabs.map((tab: any, index: number) => (
+              <option
+                value={`tab-panel-${blok._uid}-${tab._uid}`}
+                selected={index === 0}
+              >
+                {tab.title}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     )}
@@ -109,21 +131,17 @@ const bodyRight = blok?.body_right || '';
     const sections = document.querySelectorAll('[data-tab-section]');
 
     sections.forEach((section) => {
-      const tabs = Array.from(
-        section.querySelectorAll('.tab-section__tab')
-      );
-      const panels = Array.from(
-        section.querySelectorAll('[data-tab-panel]')
-      );
+      const tabs = Array.from(section.querySelectorAll('.tab-section__tab'));
+      const panels = Array.from(section.querySelectorAll('[data-tab-panel]'));
+      const select = section.querySelector('[data-tab-select]');
 
       if (!tabs.length || !panels.length) return;
 
-      function activateTab(tab) {
-        const targetId = tab.getAttribute('data-tab-target');
+      function setActiveTabByTargetId(targetId) {
         if (!targetId) return;
 
         tabs.forEach((t) => {
-          const isActive = t === tab;
+          const isActive = t.getAttribute('data-tab-target') === targetId;
 
           t.classList.toggle('tab-section__tab--active', isActive);
           t.classList.toggle('text-button-primary', isActive);
@@ -140,6 +158,15 @@ const bodyRight = blok?.body_right || '';
           panel.hidden = !isActive;
           panel.classList.toggle('tab-section__panel--active', isActive);
         });
+
+        if (select && select.value !== targetId) {
+          select.value = targetId;
+        }
+      }
+
+      function activateTab(tab) {
+        const targetId = tab.getAttribute('data-tab-target');
+        setActiveTabByTargetId(targetId);
       }
 
       tabs.forEach((tab) => {
@@ -158,6 +185,15 @@ const bodyRight = blok?.body_right || '';
           activateTab(nextTab);
         });
       });
+
+      if (select) {
+        select.addEventListener('change', () => {
+          setActiveTabByTargetId(select.value);
+        });
+      }
+
+      const initiallyActive = tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0];
+      if (initiallyActive) activateTab(initiallyActive);
     });
   });
 </script>

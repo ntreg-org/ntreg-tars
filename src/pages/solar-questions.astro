@@ -40,7 +40,93 @@ const body = Array.isArray(pageStory?.content?.body)
   footerBlok={footerBlok}
 >
  {heroBlok && <HeroSection blok={heroBlok} />}
-  {questionBlok && <QuestionSection blok={questionBlok} />}
-  
+{questionBlok && (
+  <div class="nav-clearance">
+    <QuestionSection blok={questionBlok} />
 
+    <script is:inline>
+  (() => {
+    const root =
+      document.querySelector(".question-section") ||
+      document.querySelector("#question");
+    if (!root) return;
+
+    const getItemsPanel = () =>
+      root.querySelector(".question-section__items") ||
+      root.querySelector("[data-question-items]");
+
+    const getNavOffsetPx = () => {
+      const raw = getComputedStyle(document.documentElement)
+        .getPropertyValue("--nav-offset")
+        .trim();
+      const px = Number.parseFloat(raw);
+      if (Number.isFinite(px)) return px;
+
+      const navHRaw = getComputedStyle(document.documentElement)
+        .getPropertyValue("--nav-height")
+        .trim();
+      const navH = Number.parseFloat(navHRaw);
+      return (Number.isFinite(navH) ? navH : 120) + 40;
+    };
+
+    const prefersReducedMotion =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const scrollItemsToTop = () => {
+      const items = getItemsPanel();
+      if (!items) return;
+
+      // 1) Reset inner scroll so each category starts at top
+      if (typeof items.scrollTo === "function") {
+        items.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      } else {
+        items.scrollTop = 0;
+        items.scrollLeft = 0;
+      }
+
+      // 2) Move PAGE so top of items is visible below fixed nav
+      const navOffset = getNavOffsetPx();
+      const rect = items.getBoundingClientRect();
+      const targetTop = rect.top + window.scrollY - navOffset;
+
+      window.scrollTo({
+        top: Math.max(0, targetTop),
+        left: window.scrollX,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+    };
+
+    // Capture = run before other click handlers that might scroll/focus
+    root.addEventListener(
+      "click",
+      (e) => {
+        const trigger = e.target?.closest?.(
+          ".question-section__category-btn, .question-section__category-item button, .question-section__category-item a, [data-category], [data-category-btn]"
+        );
+        if (!trigger) return;
+
+        // Stop hash-jump if category is an <a href="#...">
+        if (trigger.tagName === "A") e.preventDefault();
+
+        // Avoid focus-triggered scroll jumps (some browsers)
+        if (typeof trigger.focus === "function") {
+          try {
+            trigger.focus({ preventScroll: true });
+          } catch {}
+        }
+
+        // Wait for tab DOM update, then enforce scroll behavior
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scrollItemsToTop();
+          });
+        });
+      },
+      { passive: false, capture: true }
+    );
+  })();
+</script>
+  </div>
+)}
 </Layout>

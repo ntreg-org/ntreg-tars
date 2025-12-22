@@ -11,91 +11,52 @@ const checklist = Array.isArray(blok?.checklist) ? blok.checklist : [];
 ---
 
 <section
-  class="candidate-section py-section"
+  id="candidate"
+  data-anchor
+  class="candidate-section candidate-section--v2 py-section"
   data-candidate-section
   {...storyblokEditable(blok)}
 >
-  <div class="page-grid">
-    {/* Image row */}
-    {image && (
-      <div class="col-span-12 candidate-section__image-wrap">
-        <img
-          src={image.filename}
-          alt={image.alt || 'Illustration of a home with solar'}
-          class="candidate-section__image"
-          loading="lazy"
-        />
-      </div>
-    )}
+  <div class="page-grid candidate-v2">
+    {/* LEFT: image + checklist */}
+    <div class="candidate-v2__left">
+      {image && (
+        <figure class="candidate-v2__image">
+          <img
+            src={image.filename}
+            alt={image.alt || 'Illustration of a home with solar'}
+            loading="lazy"
+          />
+        </figure>
+      )}
 
-    {/* Headline + body + source */}
-    <div class="col-span-12 candidate-section__content">
+      {checklist.length > 0 && (
+        <div class="candidate-v2__checklist" data-checklist-viewport aria-label="Checklist">
+          <ul class="candidate-v2__checklist-track" data-checklist-track>
+            {checklist.map((item: any) => (
+              <ChecklistItem blok={item} />
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+
+    {/* RIGHT: headline + body + source */}
+    <div class="candidate-v2__right">
       {headline && (
-        <h2 class="candidate-section__headline text-h3 text-brand-on-light">
-          {headline}
-        </h2>
+        <h2 class="candidate-v2__headline text-h3 text-brand-on-light">{headline}</h2>
       )}
 
       {blok.body && (
         <div
-          class="candidate-section__body text-body-sm text-brand-on-light"
+          class="candidate-v2__body text-body-sm text-brand-on-light"
           set:html={renderRichText(blok.body)}
         />
       )}
 
       {blok.source && (
-        <p
-          class="candidate-section__source text-fine"
-          set:html={renderRichText(blok.source)}
-        />
+        <p class="candidate-v2__source text-fine" set:html={renderRichText(blok.source)} />
       )}
     </div>
-
-    {/* Space before checklist row */}
-    <div class="col-span-12 space-block-md" aria-hidden="true"></div>
-
-    {/* Checklist row */}
-    {checklist.length > 0 && (
-      <div class="col-span-12 candidate-section__checklist">
-        <div class="candidate-section__checklist-viewport">
-          <div
-            class="candidate-section__checklist-track"
-            data-checklist-track
-          >
-            {checklist.map((item: any) => (
-              <ChecklistItem blok={item} />
-            ))}
-          </div>
-        </div>
-      </div>
-    )}
   </div>
 </section>
-
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-    const sections = document.querySelectorAll('[data-candidate-section]');
-
-    sections.forEach((section) => {
-      const track = section.querySelector('[data-checklist-track]');
-      if (!track) return;
-
-      const maxShift = 80; // max pixels to slide left
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            const ratio = entry.intersectionRatio; // 0 → 1 as it comes into view
-            const shift = -ratio * maxShift;
-            track.style.transform = `translateX(${shift}px)`;
-          });
-        },
-        {
-          threshold: [0, 0.25, 0.5, 0.75, 1],
-        }
-      );
-
-      observer.observe(section);
-    });
-  });
-</script>

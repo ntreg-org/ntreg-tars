@@ -11,7 +11,7 @@ const logos = Array.isArray(blok?.logos) ? blok.logos : [];
 const headingId = `partner-logos-heading-${blok._uid}`;
 ---
 
-<section
+<section id="partner" data-anchor
   class="partner-logo-section py-section"
   aria-labelledby={headline ? headingId : undefined}
   {...storyblokEditable(blok)}

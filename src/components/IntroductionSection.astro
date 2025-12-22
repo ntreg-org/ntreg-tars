@@ -9,7 +9,7 @@ const headline: string = blok?.headline ?? '';
 const cards = Array.isArray(blok?.people_cards) ? blok.people_cards : [];
 ---
 
-<section
+<section id="introduction" data-anchor
   class="intro-section py-24 md:py-32"
   {...storyblokEditable(blok)}
 >

@@ -10,7 +10,7 @@ const calloutHtml = blok.callout ? renderRichText(blok.callout) : '';
 const bodyRightHtml = blok.body_right ? renderRichText(blok.body_right) : '';
 const sourceHtml = blok.source ? renderRichText(blok.source) : '';
 ---
-<section
+<section id="beware" data-anchor
   class="beware-section py-section space-block-md"
   {...storyblokEditable(blok)}
 >
@@ -19,7 +19,7 @@ const sourceHtml = blok.source ? renderRichText(blok.source) : '';
     <header class="col-span-12 beware-section__header">
       {blok.headline && (
         <div class="beware-section__headline-pill">
-          <p class="beware-section__headline text-brand-primary">
+          <p class="beware-section__headline text-brand-primary text-h2-regular">
             {blok.headline}
           </p>
         </div>
@@ -28,7 +28,7 @@ const sourceHtml = blok.source ? renderRichText(blok.source) : '';
       {calloutHtml && (
         <div class="beware-section__callout">
           <div
-            class="text-h3 text-brand-primary"
+            class="text-h2-regular text-brand-primary"
             set:html={calloutHtml}
           ></div>
         </div>
@@ -62,7 +62,7 @@ const sourceHtml = blok.source ? renderRichText(blok.source) : '';
     {(blok.example_headline || blok.example_image?.filename || blok.example_items?.length) && (
       <section class="col-span-12 beware-section__examples">
         {blok.example_headline && (
-          <h2 class="beware-section__example-headline text-brand-primary text-h3 lg:text-h2">
+          <h2 class="beware-section__example-headline text-brand-primary text-h3-regular">
             {blok.example_headline}
           </h2>
         )}

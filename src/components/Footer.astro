@@ -113,31 +113,14 @@ const hasSignup =
                   {blok.signup_body}
                 </p>
               )}
+              <button
+                type="button"
+                class="footer__button text-button-secondary text-brand-on-dark"
+              >
+                {blok.signup_button || 'Subscribe'}
+              </button>
             </div>
           </div>
-
-          <!-- Right: email form -->
-          <form class="footer__signup-form" action="#" method="post">
-            <label class="footer__email-label">
-              {blok.signup_email && (
-                <span class="sr-only">{blok.signup_email}</span>
-              )}
-              <input
-                type="email"
-                name="email"
-                required
-                class="footer__email-input text-body-sm"
-                placeholder={blok.signup_email || 'Email address'}
-              />
-            </label>
-
-            <button
-              type="submit"
-              class="footer__button text-button-secondary text-brand-on-dark"
-            >
-              {blok.signup_button || 'Subscribe'}
-            </button>
-          </form>
         </div>
       </section>
     )}

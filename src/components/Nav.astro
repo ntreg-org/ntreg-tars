@@ -10,6 +10,13 @@ type NavLinkBlok = {
   _uid: string;
   text?: string;
   link?: StoryblokLinkField;
+  topics?: TopicLinkBlok[];
+};
+
+type TopicLinkBlok = {
+  _uid: string;
+  label?: string;
+  anchor_id?: string;
 };
 
 const { blok } = Astro.props;
@@ -19,9 +26,15 @@ const logoUrl = blok?.logo?.filename ?? '';
 const logoAlt = blok?.logo?.alt ?? 'NTREG';
 
 // Nav links from nested blocks
-const links: NavLinkBlok[] = Array.isArray(blok?.nav_links)
-  ? blok.nav_links
-  : [];
+const links: NavLinkBlok[] = Array.isArray(blok?.nav_links) ? blok.nav_links : [];
+
+// Topics dropdown items
+const topics: TopicLinkBlok[] = Array.isArray(blok?.topics) ? blok.topics : [];
+
+const toAnchorHref = (anchorId?: string) => {
+  const id = (anchorId ?? '').trim().replace(/^#/, '');
+  return id ? `/#${id}` : '/';
+};
 
 // PDF link (from asset)
 const pdfLabel = blok?.pdf_text ?? 'PDF';
@@ -29,10 +42,7 @@ const pdfHref = blok?.pdf_file?.filename ?? '#';
 
 // Donate button
 const donateLabel = blok?.button_text ?? 'Donate';
-const donateHref =
-  blok?.button_link?.url ??
-  blok?.button_link?.cached_url ??
-  '#';
+const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#';
 ---
 
 <header
@@ -40,7 +50,7 @@ const donateHref =
   {...storyblokEditable(blok)}
 >
   <div class="nav-shell" data-nav-shell>
-    <div class="page-grid">
+    <div class="nav-viewport">
       <div class="nav-bar">
         <!-- Left: Logo -->
         <a
@@ -62,35 +72,77 @@ const donateHref =
         <nav class="nav-center">
           {links.map((item, index) => {
             const label = item?.text ?? '';
-            const href =
-              item?.link?.url ??
-              item?.link?.cached_url ??
-              '#';
-
+            const href = item?.link?.url ?? item?.link?.cached_url ?? '#';
             if (!label) return null;
 
-            const classes = [
-              'nav-link',
-              index === 0 ? 'nav-link--topic' : '',
-              index === 1 ? 'nav-link--page-title' : ''
-            ]
+            // First item = Topics (clicks to hero on the homepage) + dropdown
+        if (index === 0) {
+          const topicsForDropdown: TopicLinkBlok[] = Array.isArray(item?.topics)
+            ? item.topics
+            : topics;
+          return (
+            <div class="topics-wrapper" data-blok-uid={item._uid}>
+              <a
+                href="/#hero"
+                class="nav-link nav-link--topic topics-trigger"
+                data-topics-trigger
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="topics-menu"
+              >
+                <span class="topics-trigger-label">{label}</span>
+                <span class="topics-caret" aria-hidden="true">▾</span>
+              </a>
+
+              <div id="topics-menu" class="topics-dropdown" role="menu" aria-label="Topics" tabindex="-1">
+                {topicsForDropdown.map((t) => {
+                  const tLabel = t?.label ?? '';
+                  const tHref = toAnchorHref(t?.anchor_id);
+                  if (!tLabel) return null;
+                  return (
+                    <a
+                      href={tHref}
+                      class="topics-item"
+                      role="menuitem"
+                      data-blok-uid={t._uid}
+                      data-anchor-id={String((t?.anchor_id ?? '').trim().replace(/^#/, ''))}
+                      data-anchor-label={tLabel}
+                    >
+                      {tLabel}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+
+            // Other items render normally
+            const classes = ['nav-link', index === 1 ? 'nav-link--page-title' : '']
               .filter(Boolean)
               .join(' ');
 
             return (
-              <a
-                href={href}
-                class={classes}
-                data-blok-uid={item._uid}
-              >
+              <a href={href} class={classes} data-blok-uid={item._uid}>
                 {label}
               </a>
             );
           })}
         </nav>
 
-        <!-- Right: PDF + Donate -->
+        <!-- Right: PDF + Donate (desktop) + Menu (mobile) -->
         <div class="nav-right">
+          <button
+            type="button"
+            class="nav-menu-btn"
+            aria-expanded="false"
+            aria-controls="nav-mobile-panel"
+            aria-haspopup="dialog"
+          >
+            <span>Menu</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+
           <a href={pdfHref} class="nav-link inline-flex items-center gap-1">
             <span>{pdfLabel}</span>
             <span aria-hidden="true">⬇︎</span>
@@ -101,13 +153,258 @@ const donateHref =
           </a>
         </div>
       </div>
+
+      <div id="nav-mobile-panel" class="nav-mobile-panel" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+        <nav class="nav-mobile-links" aria-label="Mobile navigation">
+          {links.map((item, index) => {
+            const label = item?.text ?? '';
+            const href = item?.link?.url ?? item?.link?.cached_url ?? '#';
+            if (!label) return null;
+
+            // Topics goes to hero on homepage
+        if (index === 0) {
+          const topicsForMobile: TopicLinkBlok[] = Array.isArray(item?.topics)
+            ? item.topics
+            : topics;
+
+          return (
+            <div class="nav-mobile-accordion" data-mobile-topics>
+              <button
+                type="button"
+                class="nav-mobile-accordion__btn"
+                aria-expanded="false"
+                aria-controls="nav-mobile-topics-panel"
+                data-mobile-topics-toggle
+                data-blok-uid={item._uid}
+              >
+                <span class="nav-mobile-accordion__label">{label}</span>
+                <span class="nav-mobile-accordion__chev" aria-hidden="true">▾</span>
+              </button>
+
+              <div
+                id="nav-mobile-topics-panel"
+                class="nav-mobile-accordion__panel"
+                hidden
+                data-mobile-topics-panel
+              >
+                <div class="nav-mobile-accordion__panel-inner">
+                  {/* Overview link to hero */}
+                  <a
+                    href="/#hero"
+                    class="nav-mobile-link nav-mobile-link--topic nav-mobile-link--overview"
+                    data-anchor-id="hero"
+                    data-anchor-label="Topics"
+                  >
+                    Overview
+                  </a>
+
+                  {topicsForMobile.map((t) => {
+                    const tLabel = t?.label ?? '';
+                    const tHref = toAnchorHref(t?.anchor_id);
+                    if (!tLabel) return null;
+                    return (
+                      <a
+                        href={tHref}
+                        class="nav-mobile-link nav-mobile-link--topic"
+                        data-blok-uid={t._uid}
+                        data-anchor-id={String((t?.anchor_id ?? '').trim().replace(/^#/, ''))}
+                        data-anchor-label={tLabel}
+                      >
+                        {tLabel}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+            return (
+              <a href={href} class="nav-mobile-link" data-blok-uid={item._uid}>
+                {label}
+              </a>
+            );
+          })}
+
+          <a href={pdfHref} class="nav-mobile-link">
+            {pdfLabel}
+          </a>
+
+          <a href={donateHref} class="nav-mobile-cta">
+            {donateLabel}
+          </a>
+        </nav>
+      </div>
     </div>
   </div>
 </header>
-</header>
 <script is:inline>
   if (typeof window !== 'undefined') {
+    document.documentElement.classList.add('js');
     const shell = document.querySelector('[data-nav-shell]');
+
+    const menuBtn = document.querySelector('.nav-menu-btn');
+    const mobilePanel = document.getElementById('nav-mobile-panel');
+    let mobileTrapHandler = null;
+    let mobileLastFocus = null;
+
+    // Lock body scroll when the mobile panel is open (prevents background scrolling on mobile)
+    const lockBodyScroll = () => {
+      document.body.classList.add('nav-scroll-locked');
+    };
+
+    const unlockBodyScroll = () => {
+      document.body.classList.remove('nav-scroll-locked');
+    };
+
+    const mobileTopicsToggle = document.querySelector('[data-mobile-topics-toggle]');
+    const mobileTopicsPanel = document.querySelector('[data-mobile-topics-panel]');
+
+    const closeMobileTopics = () => {
+      if (!(mobileTopicsToggle instanceof HTMLElement) || !(mobileTopicsPanel instanceof HTMLElement)) return;
+      mobileTopicsToggle.setAttribute('aria-expanded', 'false');
+      mobileTopicsPanel.hidden = true;
+      mobileTopicsToggle.classList.remove('is-open');
+    };
+
+    const openMobileTopics = () => {
+      if (!(mobileTopicsToggle instanceof HTMLElement) || !(mobileTopicsPanel instanceof HTMLElement)) return;
+      mobileTopicsToggle.setAttribute('aria-expanded', 'true');
+      mobileTopicsPanel.hidden = false;
+      mobileTopicsToggle.classList.add('is-open');
+    };
+
+    const toggleMobileTopics = () => {
+      if (!(mobileTopicsToggle instanceof HTMLElement) || !(mobileTopicsPanel instanceof HTMLElement)) return;
+      const isOpen = mobileTopicsToggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen) closeMobileTopics();
+      else openMobileTopics();
+    };
+
+    const closeMenu = () => {
+      if (!menuBtn || !mobilePanel) return;
+      menuBtn.setAttribute('aria-expanded', 'false');
+      mobilePanel.hidden = true;
+      unlockBodyScroll();
+
+      if (mobileTrapHandler) {
+        document.removeEventListener('keydown', mobileTrapHandler);
+        mobileTrapHandler = null;
+      }
+
+      closeMobileTopics();
+
+      if (menuBtn instanceof HTMLElement) {
+        menuBtn.focus();
+      }
+    };
+
+    const toggleMenu = () => {
+      if (!menuBtn || !mobilePanel) return;
+      const isOpen = menuBtn.getAttribute('aria-expanded') === 'true';
+      const nextOpen = !isOpen;
+      menuBtn.setAttribute('aria-expanded', String(nextOpen));
+      mobilePanel.hidden = !nextOpen;
+
+      if (nextOpen) lockBodyScroll();
+      else unlockBodyScroll();
+
+      if (nextOpen) {
+        // Open topics by default on mobile for discoverability
+        openMobileTopics();
+
+        // Focus management: move focus into the panel + trap Tab inside
+        if (menuBtn instanceof HTMLElement) mobileLastFocus = menuBtn;
+
+        window.setTimeout(() => {
+          const focusables = Array.from(
+            mobilePanel.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+          ).filter((el) => el instanceof HTMLElement);
+
+          const first = focusables[0];
+          if (first && first instanceof HTMLElement) first.focus();
+          else if (mobilePanel instanceof HTMLElement) mobilePanel.focus();
+        }, 0);
+
+        mobileTrapHandler = (e) => {
+          if (e.key !== 'Tab') return;
+          if (mobilePanel.hidden) return;
+
+          const focusables = Array.from(
+            mobilePanel.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+          ).filter((el) => el instanceof HTMLElement);
+
+          if (focusables.length === 0) return;
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          const active = document.activeElement;
+          if (!(active instanceof HTMLElement)) return;
+
+          if (e.shiftKey) {
+            if (active === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (active === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        };
+
+        document.addEventListener('keydown', mobileTrapHandler);
+
+        // If a topic is active, scroll it into view inside the panel
+        window.setTimeout(() => {
+          const active = mobilePanel.querySelector('.nav-mobile-link--topic.is-active');
+          if (active && active instanceof HTMLElement) {
+            active.scrollIntoView({ block: 'nearest' });
+          }
+        }, 0);
+      } else {
+        // Remove focus trap + return focus
+        if (mobileTrapHandler) {
+          document.removeEventListener('keydown', mobileTrapHandler);
+          mobileTrapHandler = null;
+        }
+
+        closeMobileTopics();
+
+        if (mobileLastFocus && mobileLastFocus instanceof HTMLElement) {
+          mobileLastFocus.focus();
+        }
+      }
+    };
+
+    if (menuBtn && mobilePanel) {
+      menuBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleMenu();
+      });
+
+      // Close when clicking outside.
+      document.addEventListener('click', (e) => {
+        if (mobilePanel.hidden) return;
+        const target = e.target;
+        if (!(target instanceof Node)) return;
+        if (menuBtn.contains(target) || mobilePanel.contains(target)) return;
+        closeMenu();
+      });
+
+      // Close on Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
+      });
+    }
+
+    if (mobileTopicsToggle instanceof HTMLElement) {
+      mobileTopicsToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleMobileTopics();
+      });
+    }
 
     const computeThreshold = () => {
       const hero = document.querySelector('.hero-section');
@@ -134,6 +431,7 @@ const donateHref =
 
     const onResize = () => {
       threshold = computeThreshold();
+      closeMenu();
       onScroll();
     };
 
@@ -141,5 +439,400 @@ const donateHref =
     window.addEventListener('resize', onResize);
 
     onScroll();
+
+    // -----------------------------
+    // Section reveal (subtle entrance)
+    // -----------------------------
+    const initSectionReveal = () => {
+      const prefersReduce =
+        window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const targets = Array.from(document.querySelectorAll('[data-anchor][id]')).filter(
+        (el) => el.id !== 'hero'
+      );
+
+      // Mark targets so CSS applies only to these elements
+      targets.forEach((el) => el.setAttribute('data-reveal', ''));
+
+      if (prefersReduce) {
+        targets.forEach((el) => el.classList.add('is-revealed'));
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-revealed');
+              observer.unobserve(entry.target); // reveal once
+            }
+          });
+        },
+        {
+          root: null,
+          // reveal slightly before the section hits mid-viewport
+          rootMargin: '0px 0px -10% 0px',
+          threshold: 0.08,
+        }
+      );
+
+      targets.forEach((el) => observer.observe(el));
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSectionReveal, { once: true });
+    } else {
+      initSectionReveal();
+    }
+
+    // -----------------------------
+    // Scroll spy for Topics (home only)
+    // Highlights as you scroll + updates URL hash quietly
+    // -----------------------------
+    const isHome = window.location.pathname === '/' || window.location.pathname === '';
+    if (isHome) {
+      const initTopicsScrollSpy = () => {
+        const getNavHeight = () => {
+          const cssVal = getComputedStyle(document.documentElement)
+            .getPropertyValue('--nav-height')
+            .trim();
+          const parsed = parseInt(cssVal, 10);
+          return Number.isFinite(parsed) && parsed > 0 ? parsed : (shell?.offsetHeight || 96);
+        };
+
+        const trigger = document.querySelector('[data-topics-trigger]');
+        const triggerLabelEl = trigger?.querySelector('.topics-trigger-label');
+
+        const topicsWrapper = trigger?.closest('.topics-wrapper');
+
+        // -----------------------------
+        // Desktop Topics dropdown: keyboard + aria
+        // -----------------------------
+        const topicsItems = Array.from(topicsWrapper?.querySelectorAll('.topics-item') ?? []).filter(
+          (el) => el instanceof HTMLElement
+        );
+
+        const setTopicsExpanded = (expanded) => {
+          if (trigger instanceof HTMLElement) {
+            trigger.setAttribute('aria-expanded', String(expanded));
+          }
+        };
+
+        const openTopicsMenu = () => {
+          if (!topicsWrapper) return;
+          topicsWrapper.classList.add('is-open');
+          setTopicsExpanded(true);
+        };
+
+        const closeTopicsMenu = () => {
+          if (!topicsWrapper) return;
+          topicsWrapper.classList.remove('is-open');
+          setTopicsExpanded(false);
+        };
+
+        const focusTopicAt = (idx) => {
+          const el = topicsItems[idx];
+          if (el && el instanceof HTMLElement) el.focus();
+        };
+
+        const focusFirstTopic = () => focusTopicAt(0);
+        const focusLastTopic = () => focusTopicAt(Math.max(0, topicsItems.length - 1));
+
+        // Click outside closes the dropdown
+        document.addEventListener('click', (e) => {
+          if (!topicsWrapper) return;
+          const target = e.target;
+          if (!(target instanceof Node)) return;
+          if (topicsWrapper.contains(target)) return;
+          closeTopicsMenu();
+        });
+
+        // Escape closes dropdown (and returns focus to trigger if it was inside)
+        document.addEventListener('keydown', (e) => {
+          if (e.key !== 'Escape') return;
+          if (!topicsWrapper) return;
+          if (topicsWrapper.classList.contains('is-open')) {
+            closeTopicsMenu();
+            if (trigger instanceof HTMLElement) trigger.focus();
+          }
+        });
+
+        // Trigger key handling
+        if (trigger instanceof HTMLElement) {
+          trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              openTopicsMenu();
+              window.setTimeout(focusFirstTopic, 0);
+              return;
+            }
+
+            if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              openTopicsMenu();
+              window.setTimeout(focusLastTopic, 0);
+              return;
+            }
+
+            // Space toggles menu without navigating
+            if (e.key === ' ') {
+              e.preventDefault();
+              const isOpen = topicsWrapper?.classList.contains('is-open');
+              if (isOpen) closeTopicsMenu();
+              else {
+                openTopicsMenu();
+                window.setTimeout(focusFirstTopic, 0);
+              }
+            }
+          });
+        }
+
+        // Menu items arrow-key navigation
+        topicsItems.forEach((item, idx) => {
+          if (!(item instanceof HTMLElement)) return;
+
+          item.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              focusTopicAt((idx + 1) % topicsItems.length);
+              return;
+            }
+
+            if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              focusTopicAt((idx - 1 + topicsItems.length) % topicsItems.length);
+              return;
+            }
+
+            if (e.key === 'Home') {
+              e.preventDefault();
+              focusFirstTopic();
+              return;
+            }
+
+            if (e.key === 'End') {
+              e.preventDefault();
+              focusLastTopic();
+              return;
+            }
+
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              closeTopicsMenu();
+              if (trigger instanceof HTMLElement) trigger.focus();
+            }
+          });
+
+          // Clicking a menu item closes dropdown for mouse + keyboard users
+          item.addEventListener('click', () => {
+            closeTopicsMenu();
+          });
+        });
+
+        // If the dropdown becomes visible via hover/focus-within, sync aria-expanded
+        if (topicsWrapper) {
+          topicsWrapper.addEventListener('mouseenter', () => setTopicsExpanded(true));
+          topicsWrapper.addEventListener('mouseleave', () => setTopicsExpanded(false));
+        }
+
+        const forceCloseDropdown = () => {
+          if (!topicsWrapper) return;
+          topicsWrapper.classList.add('is-force-closed');
+          topicsWrapper.classList.remove('is-open');
+          if (trigger instanceof HTMLElement) trigger.setAttribute('aria-expanded', 'false');
+          // Remove shortly after so hover can reopen naturally
+          window.setTimeout(() => {
+            topicsWrapper.classList.remove('is-force-closed');
+          }, 450);
+        };
+
+        // If the user moves the mouse away, clear the forced-close state
+        if (topicsWrapper) {
+          topicsWrapper.addEventListener('mouseleave', () => {
+            topicsWrapper.classList.remove('is-force-closed');
+          });
+        }
+
+        // Clicking the trigger should also close the dropdown (while still navigating to /#hero)
+        if (trigger instanceof HTMLElement) {
+          trigger.addEventListener('click', () => {
+            forceCloseDropdown();
+            trigger.blur();
+          });
+        }
+
+        const topicLinks = Array.from(
+          document.querySelectorAll('.topics-item[data-anchor-id], .nav-mobile-link--topic[data-anchor-id]')
+        );
+
+        const linkById = new Map();
+        topicLinks.forEach((a) => {
+          const id = (a.getAttribute('data-anchor-id') || '').trim();
+          if (!id) return;
+          // Prefer the desktop dropdown link for labels when both exist
+          if (!linkById.has(id) || a.classList.contains('topics-item')) {
+            linkById.set(id, a);
+          }
+        });
+
+        const sections = Array.from(document.querySelectorAll('[data-anchor][id]'));
+
+        let currentId = '';
+
+        const setActive = (id) => {
+          if (!id) return;
+          const canonicalLink = linkById.get(id);
+          const label = canonicalLink?.getAttribute('data-anchor-label') || '';
+
+          topicLinks.forEach((a) => {
+            const aid = (a.getAttribute('data-anchor-id') || '').trim();
+            const isActive = aid === id;
+            a.classList.toggle('is-active', isActive);
+            if (isActive) a.setAttribute('aria-current', 'location');
+            else a.removeAttribute('aria-current');
+          });
+
+          if (triggerLabelEl) {
+            // Only show the word “Topics” when the Hero is active.
+            // For all other sections, show just the section label (no “Topics ·” prefix).
+            const isHero = id === 'hero';
+            const nextText = isHero ? 'Topics' : (label || 'Topics');
+
+            if (triggerLabelEl.textContent !== nextText) {
+              triggerLabelEl.classList.add('is-fading');
+
+              window.setTimeout(() => {
+                triggerLabelEl.textContent = nextText;
+                triggerLabelEl.classList.remove('is-fading');
+              }, 120);
+            }
+          }
+
+          // Quietly update hash (avoid jump)
+          const nextHash = `#${id}`;
+          if (window.location.hash !== nextHash) {
+            window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}${nextHash}`);
+          }
+        };
+
+        // Click: immediately set active for snappy UI
+        const onTopicClick = (e) => {
+          const target = e.target;
+          if (!(target instanceof Element)) return;
+
+          const link = target.closest('[data-anchor-id]');
+          if (!(link instanceof Element)) return;
+
+          const id = (link.getAttribute('data-anchor-id') || '').trim();
+          if (id) {
+            currentId = id;
+            setActive(id);
+          }
+
+          // Auto-close desktop dropdown when a dropdown item is clicked
+          if (link.classList.contains('topics-item')) {
+            forceCloseDropdown();
+            // remove focus so focus-within doesn't keep it open
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
+          }
+
+          // Close the mobile menu panel after selecting a topic
+          if (link.classList.contains('nav-mobile-link--topic')) {
+            closeMenu();
+          }
+        };
+        document.addEventListener('click', onTopicClick);
+
+        // Hash navigation (back/forward)
+        window.addEventListener('hashchange', () => {
+          const id = (window.location.hash || '').replace('#', '').trim();
+          if (id) {
+            currentId = id;
+            setActive(id);
+          }
+        });
+
+        // Start from hash if present
+        const initialId = (window.location.hash || '').replace('#', '').trim();
+        if (initialId) {
+          currentId = initialId;
+          setActive(initialId);
+        }
+
+        // Intersection observer: pick the most-visible section within the viewport window
+        let observer;
+        const visible = new Map();
+
+        const chooseBest = () => {
+          if (visible.size === 0) return '';
+          let bestId = '';
+          let bestRatio = -1;
+          let bestTop = Infinity;
+          for (const [id, entry] of visible.entries()) {
+            const ratio = entry.intersectionRatio || 0;
+            const top = entry.boundingClientRect?.top ?? Infinity;
+            if (ratio > bestRatio || (ratio === bestRatio && top < bestTop)) {
+              bestRatio = ratio;
+              bestTop = top;
+              bestId = id;
+            }
+          }
+          return bestId;
+        };
+
+        const createObserver = () => {
+          const navH = getNavHeight();
+          const marginTop = -navH;
+          const marginBottom = -60; // switch a bit before the section fully leaves
+          observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                const id = entry.target.getAttribute('id') || '';
+                if (!id) return;
+                if (entry.isIntersecting) visible.set(id, entry);
+                else visible.delete(id);
+              });
+
+              const bestId = chooseBest();
+              if (bestId && bestId !== currentId) {
+                currentId = bestId;
+                setActive(bestId);
+              }
+            },
+            {
+              root: null,
+              rootMargin: `${marginTop}px 0px ${marginBottom}px 0px`,
+              threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+            }
+          );
+
+          sections.forEach((s) => observer.observe(s));
+        };
+
+        createObserver();
+
+        // Recreate observer on resize (nav height can change)
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = window.setTimeout(() => {
+            try {
+              visible.clear();
+              observer?.disconnect();
+            } catch (_) {}
+            createObserver();
+          }, 150);
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTopicsScrollSpy, { once: true });
+      } else {
+        initTopicsScrollSpy();
+      }
+    }
   }
 </script>

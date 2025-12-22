@@ -11,7 +11,7 @@ const headingId = `benefits-carousel-heading-${blok._uid}`;
 const carouselId = `benefits-carousel-${blok._uid}`;
 ---
 
-<section
+<section id="benefits" data-anchor
   class="benefits-carousel-section bg-brand-primary py-section"
   aria-labelledby={headline ? headingId : undefined}
   {...storyblokEditable(blok)}
@@ -38,7 +38,7 @@ const carouselId = `benefits-carousel-${blok._uid}`;
       </div>
 
       {/* Carousel nav buttons (hidden on mobile via CSS) */}
-      <div class="benefits-carousel__nav-group" aria-hidden="true">
+      <div class="benefits-carousel__nav-group">
         <button
           type="button"
           class="benefits-carousel__nav benefits-carousel__nav--prev"
@@ -62,7 +62,7 @@ const carouselId = `benefits-carousel-${blok._uid}`;
     {/* Carousel */}
     {cards.length > 0 && (
       <div
-        class="col-span-12 benefits-carousel"
+        class="col-span-12 benefits-carousel benefits-carousel--bleed"
         id={carouselId}
         data-carousel-id={blok._uid}
       >
@@ -86,10 +86,10 @@ const carouselId = `benefits-carousel-${blok._uid}`;
 
     {blok.source && (
       <footer class="col-span-12 benefits-carousel__source">
-        <p
+        <div
           class="benefits-carousel__source-text text-fine"
           set:html={renderRichText(blok.source)}
-        />
+        ></div>
       </footer>
     )}
   </div>
@@ -97,42 +97,75 @@ const carouselId = `benefits-carousel-${blok._uid}`;
 
 <!-- Carousel behaviour -->
 <script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-    const root = document.querySelector('[data-carousel-id="${blok._uid}"]');
-    if (!root) return;
+  (function () {
+    const bindSection = (section) => {
+      if (!section || !(section instanceof HTMLElement)) return;
+      if (section.dataset.carouselBound === 'true') return;
 
-    const viewport = root.querySelector('.benefits-carousel__viewport');
-    const track = root.querySelector('.benefits-carousel__track');
-    const prevBtn = document.querySelector(
-      '#${carouselId} .benefits-carousel__nav--prev'
-    );
-    const nextBtn = document.querySelector(
-      '#${carouselId} .benefits-carousel__nav--next'
-    );
+      const viewport = section.querySelector('.benefits-carousel__viewport');
+      const track = section.querySelector('.benefits-carousel__track');
+      const prevBtn = section.querySelector('.benefits-carousel__nav--prev');
+      const nextBtn = section.querySelector('.benefits-carousel__nav--next');
 
-    if (!viewport || !track || !prevBtn || !nextBtn) return;
+      if (!viewport || !track || !prevBtn || !nextBtn) return;
 
-    const getScrollAmount = () => {
-      const firstCard = track.querySelector('.benefits-card');
-      if (!firstCard) return viewport.clientWidth;
-      const style = window.getComputedStyle(firstCard);
-      const gapRight = parseFloat(style.marginRight) || 0;
-      const width = firstCard.getBoundingClientRect().width;
-      return width + gapRight;
+      section.dataset.carouselBound = 'true';
+
+      const getGap = () => {
+        const s = window.getComputedStyle(track);
+        const gapValue = s.columnGap || s.gap || '0px';
+        const gap = parseFloat(String(gapValue).split(' ')[0]);
+        return Number.isFinite(gap) ? gap : 0;
+      };
+
+      const getCardWidth = () => {
+        const card = track.querySelector('.benefits-card');
+        if (!card) return viewport.clientWidth;
+        return card.getBoundingClientRect().width;
+      };
+
+      const getStep = () => Math.round(getCardWidth() + getGap());
+
+      const scrollByStep = (dir) => {
+        // Use a numeric fallback in case smooth scrolling is disabled
+        const step = getStep();
+        viewport.scrollBy({ left: dir * step, behavior: 'smooth' });
+      };
+
+      prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollByStep(-1);
+      });
+
+      nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollByStep(1);
+      });
+
+      // Keyboard support when the viewport is focused
+      viewport.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          scrollByStep(-1);
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          scrollByStep(1);
+        }
+      });
     };
 
-    prevBtn.addEventListener('click', () => {
-      viewport.scrollBy({
-        left: -getScrollAmount(),
-        behavior: 'smooth',
-      });
-    });
+    const init = () => {
+      document.querySelectorAll('.benefits-carousel-section').forEach(bindSection);
+    };
 
-    nextBtn.addEventListener('click', () => {
-      viewport.scrollBy({
-        left: getScrollAmount(),
-        behavior: 'smooth',
-      });
-    });
-  });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+    // If Astro client-side navigation is enabled
+    document.addEventListener('astro:page-load', init);
+  })();
 </script>
