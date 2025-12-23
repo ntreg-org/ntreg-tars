@@ -4,6 +4,12 @@ import { storyblokEditable } from '@storyblok/astro';
 type StoryblokLinkField = {
   url?: string;
   cached_url?: string;
+  linktype?: string;
+  story?: {
+    url?: string;
+    full_slug?: string;
+    slug?: string;
+  };
 };
 
 type NavLinkBlok = {
@@ -36,13 +42,52 @@ const toAnchorHref = (anchorId?: string) => {
   return id ? `/#${id}` : '/';
 };
 
+// Normalize Storyblok internal links so they always resolve correctly
+const normalizeHref = (raw?: string) => {
+  const href = (raw ?? '').trim();
+  if (!href) return '#';
+
+  // Keep in-page anchors and absolute URLs as-is
+  if (href.startsWith('#')) return href;
+  if (href.startsWith('http://') || href.startsWith('https://')) return href;
+  if (href.startsWith('mailto:') || href.startsWith('tel:')) return href;
+
+  // Storyblok internal links often come through as `path` without a leading slash
+  if (!href.startsWith('/')) return `/${href}`;
+
+  return href;
+};
+
+// Helper: return the first non-empty (trimmed) string from the arguments
+const firstNonEmpty = (...values: Array<string | undefined | null>) => {
+  for (const v of values) {
+    if (typeof v !== 'string') continue;
+    const trimmed = v.trim();
+    if (trimmed.length > 0) return trimmed;
+  }
+  return '';
+};
+
+const getLinkRawHref = (link?: StoryblokLinkField) => {
+  // Storyblok multilink often includes `url: ""` for internal stories. Treat empty strings as missing.
+  return firstNonEmpty(
+    link?.url,
+    link?.cached_url,
+    link?.story?.url,
+    link?.story?.full_slug,
+    link?.story?.slug
+  );
+};
+
 // PDF link (from asset)
 const pdfLabel = blok?.pdf_text ?? 'PDF';
 const pdfHref = blok?.pdf_file?.filename ?? '#';
 
 // Donate button
 const donateLabel = blok?.button_text ?? 'Donate';
-const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#';
+const donateHref = normalizeHref(
+  firstNonEmpty(blok?.button_link?.url, blok?.button_link?.cached_url)
+);
 ---
 
 <header
@@ -72,7 +117,8 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
         <nav class="nav-center">
           {links.map((item, index) => {
             const label = item?.text ?? '';
-            const href = item?.link?.url ?? item?.link?.cached_url ?? '#';
+            const hrefRaw = getLinkRawHref(item?.link);
+            const href = normalizeHref(hrefRaw);
             if (!label) return null;
 
             // First item = Topics (clicks to hero on the homepage) + dropdown
@@ -123,7 +169,11 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
               .join(' ');
 
             return (
-              <a href={href} class={classes} data-blok-uid={item._uid}>
+              <a
+                href={href}
+                class={classes}
+                data-blok-uid={item._uid}
+              >
                 {label}
               </a>
             );
@@ -158,7 +208,8 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
         <nav class="nav-mobile-links" aria-label="Mobile navigation">
           {links.map((item, index) => {
             const label = item?.text ?? '';
-            const href = item?.link?.url ?? item?.link?.cached_url ?? '#';
+            const hrefRaw = getLinkRawHref(item?.link);
+            const href = normalizeHref(hrefRaw);
             if (!label) return null;
 
             // Topics goes to hero on homepage
@@ -188,15 +239,7 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
                 data-mobile-topics-panel
               >
                 <div class="nav-mobile-accordion__panel-inner">
-                  {/* Overview link to hero */}
-                  <a
-                    href="/"
-                    class="nav-mobile-link nav-mobile-link--topic nav-mobile-link--overview"
-                    data-anchor-id=""
-                    data-anchor-label="Topics"
-                  >
-                    Overview
-                  </a>
+          
 
                   {topicsForMobile.map((t) => {
                     const tLabel = t?.label ?? '';
@@ -221,7 +264,11 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
         }
 
             return (
-              <a href={href} class="nav-mobile-link" data-blok-uid={item._uid}>
+              <a
+                href={href}
+                class="nav-mobile-link"
+                data-blok-uid={item._uid}
+              >
                 {label}
               </a>
             );
@@ -444,18 +491,16 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
     // Section reveal (subtle entrance)
     // -----------------------------
     const initSectionReveal = () => {
-      const prefersReduce =
+      const prefersReducedMotion =
         window.matchMedia &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      const targets = Array.from(document.querySelectorAll('[data-anchor][id]')).filter(
-        (el) => el.id !== 'hero'
-      );
+      const targets = Array.from(document.querySelectorAll('[data-anchor][id]'));
 
       // Mark targets so CSS applies only to these elements
       targets.forEach((el) => el.setAttribute('data-reveal', ''));
 
-      if (prefersReduce) {
+      if (prefersReducedMotion) {
         targets.forEach((el) => el.classList.add('is-revealed'));
         return;
       }
@@ -488,7 +533,7 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
 
     // -----------------------------
     // Scroll spy for Topics (home only)
-    // Highlights as you scroll + updates URL hash quietly
+    // Highlights as you scroll (does not mutate the URL)
     // -----------------------------
     const isHome = window.location.pathname === '/' || window.location.pathname === '';
     if (isHome) {
@@ -654,7 +699,7 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
           });
         }
 
-        // Clicking the trigger should also close the dropdown (while still navigating to /#hero)
+        // Clicking the trigger should also close the dropdown
         if (trigger instanceof HTMLElement) {
           trigger.addEventListener('click', () => {
             forceCloseDropdown();

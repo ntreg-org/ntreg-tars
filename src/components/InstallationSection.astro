@@ -44,15 +44,7 @@ const sourceHtml = blok?.source ? renderRichText(blok.source) : '';
       </figure>
     )}
 
-    <!-- Body 2 -->
-    {body2Html && (
-      <div
-        class="col-span-12 installation-section__body installation-section__body--2 text-brand-on-light text-body-sm"
-        set:html={body2Html}
-      ></div>
-    )}
-
-    <!-- Image 2 (left on desktop/tablet, full width mobile) -->
+  <!-- Image 2 (left on desktop/tablet, full width mobile) -->
     {blok?.image2?.filename && (
       <figure class="col-span-12 installation-section__image installation-section__image--2">
         <img
@@ -62,6 +54,14 @@ const sourceHtml = blok?.source ? renderRichText(blok.source) : '';
           loading="lazy"
         />
       </figure>
+    )}
+
+    <!-- Body 2 -->
+    {body2Html && (
+      <div
+        class="col-span-12 installation-section__body installation-section__body--2 text-brand-on-light text-body-sm"
+        set:html={body2Html}
+      ></div>
     )}
 
     <!-- Body 3 -->

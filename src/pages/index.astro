@@ -25,8 +25,8 @@ const version = import.meta.env.DEV ? 'draft' : 'published';
 const [{ data: homeData }, { data: navData }, { data: footerData }] =
   await Promise.all([
     storyblokApi.get('cdn/stories/home', { version }),
-    storyblokApi.get('cdn/stories/global-nav', { version }),
-    storyblokApi.get('cdn/stories/global-footer', { version }), // 👈 new
+    storyblokApi.get('cdn/stories/global-nav', { version, resolve_links: 'url' }),
+    storyblokApi.get('cdn/stories/global-footer', { version, resolve_links: 'url' }), // 👈 new
   ]);
 
 const homeStory = homeData.story;

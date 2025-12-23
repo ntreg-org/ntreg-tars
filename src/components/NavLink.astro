@@ -1,23 +1,61 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
+import type { SbBlokData } from '@storyblok/astro';
 
-export interface NavLinkBlok {
-  _uid: string;
-  component: string;
-  text?: string;
-  link?: {
+type StoryblokLinkField = {
+  url?: string;
+  cached_url?: string;
+  linktype?: string;
+  story?: {
     url?: string;
-    cached_url?: string;
+    full_slug?: string;
+    slug?: string;
   };
+};
+
+export interface NavLinkBlok extends SbBlokData {
+  _uid: string;
+  text?: string;
+  link?: StoryblokLinkField;
 }
 
-const { blok } = Astro.props;
+const { blok } = Astro.props as { blok: NavLinkBlok };
 
 const label = blok?.text ?? '';
-const href =
-  blok?.link?.url ??
-  blok?.link?.cached_url ??
-  '#';
+
+const normalizeHref = (raw?: string): string => {
+  const href = (raw ?? '').trim();
+  if (!href) return '#';
+
+  // Keep in-page anchors and absolute URLs as-is
+  if (href.startsWith('#')) return href;
+  if (href.startsWith('http://') || href.startsWith('https://')) return href;
+  if (href.startsWith('mailto:') || href.startsWith('tel:')) return href;
+
+  // Storyblok internal links sometimes come through without a leading slash
+  if (!href.startsWith('/')) return `/${href}`;
+
+  return href;
+};
+
+const firstNonEmpty = (...values: Array<string | undefined | null>): string => {
+  for (const v of values) {
+    if (typeof v !== 'string') continue;
+    const trimmed = v.trim();
+    if (trimmed.length > 0) return trimmed;
+  }
+  return '';
+};
+
+const rawHref = firstNonEmpty(
+  blok?.link?.url,
+  blok?.link?.cached_url,
+  blok?.link?.story?.url,
+  blok?.link?.story?.full_slug,
+  blok?.link?.story?.slug
+);
+
+const href = normalizeHref(rawHref);
 ---
 
 <a

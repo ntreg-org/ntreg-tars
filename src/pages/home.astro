@@ -1,31 +1,31 @@
 ---
-import Layout from "../layouts/layout.astro";
-import { useStoryblokApi } from "@storyblok/astro";
+  // This route exists only as an alias to the real homepage at `/`.
+  // Keeping it prevents broken links if anything points to `/home`.
 
-const storyblokApi = useStoryblokApi();
-const version = import.meta.env.DEV ? "draft" : "published";
-
-// Fetch the Solar Contractor Questions page + global nav + global footer
-const [{ data: pageData }, { data: navData }, { data: footerData }] = await Promise.all([
-  storyblokApi.get("cdn/stories/solar-questions", { version }),
-  storyblokApi.get("cdn/stories/global-nav", { version }),
-  storyblokApi.get("cdn/stories/global-footer", { version }),
-]);
-
-const pageStory = pageData.story;
-const navBlok = navData.story?.content;
-const footerBlok = footerData.story?.content;
-
-// We'll hook into this later when we add specific sections for this page
-const body = Array.isArray(pageStory?.content?.body)
-  ? pageStory.content.body
-  : [];
+  // If you are running Astro with SSR (adapter enabled), this will perform a real HTTP redirect.
+  if (typeof Astro !== 'undefined' && Astro?.redirect) {
+    return Astro.redirect('/', 302);
+  }
 ---
 
-<Layout
-  title="Solar Contractor Questions | NTREG"
-  navBlok={navBlok}
-  footerBlok={footerBlok}
->
-  {/** TODO: render solar-questions sections from `body` once components are ready */}
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirecting…</title>
+
+    <!-- Static-site friendly redirect fallback -->
+    <meta http-equiv="refresh" content="0; url=/" />
+    <link rel="canonical" href="/" />
+
+    <script>
+      // JS redirect fallback (covers cases where meta refresh is blocked)
+      window.location.replace('/');
+    </script>
+  </head>
+  <body>
+    <p>
+      Redirecting to <a href="/">home</a>…
+    </p>
+  </body>
+</html>
