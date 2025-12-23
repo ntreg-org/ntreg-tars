@@ -83,7 +83,7 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
           return (
             <div class="topics-wrapper" data-blok-uid={item._uid}>
               <a
-                href="/#hero"
+                href="/"
                 class="nav-link nav-link--topic topics-trigger"
                 data-topics-trigger
                 aria-haspopup="menu"
@@ -190,9 +190,9 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
                 <div class="nav-mobile-accordion__panel-inner">
                   {/* Overview link to hero */}
                   <a
-                    href="/#hero"
+                    href="/"
                     class="nav-mobile-link nav-mobile-link--topic nav-mobile-link--overview"
-                    data-anchor-id="hero"
+                    data-anchor-id=""
                     data-anchor-label="Topics"
                   >
                     Overview
@@ -681,7 +681,7 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
         let currentId = '';
 
         const setActive = (id) => {
-          if (!id) return;
+          if (!id && id !== '') return;
           const canonicalLink = linkById.get(id);
           const label = canonicalLink?.getAttribute('data-anchor-label') || '';
 
@@ -694,10 +694,9 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
           });
 
           if (triggerLabelEl) {
-            // Only show the word “Topics” when the Hero is active.
-            // For all other sections, show just the section label (no “Topics ·” prefix).
-            const isHero = id === 'hero';
-            const nextText = isHero ? 'Topics' : (label || 'Topics');
+            // Keep "Topics" as the trigger label when we're at the top (no hash).
+            // When a real section is active, show that section label.
+            const nextText = id ? (label || 'Topics') : 'Topics';
 
             if (triggerLabelEl.textContent !== nextText) {
               triggerLabelEl.classList.add('is-fading');
@@ -707,12 +706,6 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
                 triggerLabelEl.classList.remove('is-fading');
               }, 120);
             }
-          }
-
-          // Quietly update hash (avoid jump)
-          const nextHash = `#${id}`;
-          if (window.location.hash !== nextHash) {
-            window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}${nextHash}`);
           }
         };
 
@@ -800,6 +793,11 @@ const donateHref = blok?.button_link?.url ?? blok?.button_link?.cached_url ?? '#
               if (bestId && bestId !== currentId) {
                 currentId = bestId;
                 setActive(bestId);
+              }
+              // If no section is considered visible, treat as top-of-page.
+              if (!bestId && currentId !== '') {
+                currentId = '';
+                setActive('');
               }
             },
             {
