@@ -30,7 +30,7 @@ const sourceHtml = blok.source ? renderRichText(blok.source as any) : '';
 ---
 
 <section id="maintenance" data-anchor
-  class="maintenance-section bg-brand-primary py-section"
+  class="maintenance-section bg-brand-primary py-section text-brand-on-dark"
   {...storyblokEditable(blok as any)}
 >
   <div class="page-grid maintenance-section__grid">
@@ -53,7 +53,7 @@ const sourceHtml = blok.source ? renderRichText(blok.source as any) : '';
     </div>
 
     <!-- RIGHT: headline, body, items, source -->
-    <div class="maintenance-section__content">
+    <div class="maintenance-section__content text-brand-on-dark">
       <header class="maintenance-section__header">
         {headline && (
           <h2 class="maintenance-section__headline text-brand-on-dark text-h3 lg:text-h2">
@@ -63,7 +63,7 @@ const sourceHtml = blok.source ? renderRichText(blok.source as any) : '';
 
         {bodyHtml && (
           <div
-            class="maintenance-section__body text-body-sm md:text-body-md"
+            class="maintenance-section__body text-body-md md:text-body-md text-brand-on-dark"
             set:html={bodyHtml || ''}
           ></div>
         )}

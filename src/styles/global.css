@@ -1685,7 +1685,7 @@ body.nav-scroll-locked {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: var(--space-8);
+    padding: var(--space-8) var(--space-8) 0;
     box-sizing: border-box;
     flex-shrink: 0;
     width: 230px;
@@ -1719,10 +1719,19 @@ body.nav-scroll-locked {
   }
 
   .benefits-card__image-wrap {
-    margin-top: var(--space-6);
+    margin-top: auto;
     height: 96px;
     overflow: hidden;
-    position: relative;
+
+    /* Bleed the illustration to the card edges (card has padding: var(--space-8)) */
+    margin-left: calc(var(--space-8) * -1);
+    margin-right: calc(var(--space-8) * -1);
+
+    /* Keep layout predictable */
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
   @media (min-width: 1024px) {
@@ -1732,12 +1741,19 @@ body.nav-scroll-locked {
   }
 
   .benefits-card__image {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
     display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: bottom center;
+    transform-origin: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .benefits-card__image {
+      transform: none;
+    }
   }
 
   /* Source text */
@@ -3513,9 +3529,97 @@ body.nav-scroll-locked {
    Maintenance Section
    ========================= */
 
+  /* Base section text color (do NOT force all descendants—icons need their own colors) */
+
   .maintenance-section {
     background-color: var(--brand-primary);
-    color: var(--white-90);
+  }
+
+  /* Keep links readable inside maintenance copy areas */
+  .maintenance-section__content a,
+  .maintenance-section__content a:link,
+  .maintenance-section__content a:visited,
+  .maintenance-section__content a:hover,
+  .maintenance-section__content a:active,
+  .maintenance-section__content a:focus,
+  .maintenance-section__source a,
+  .maintenance-section__source a:link,
+  .maintenance-section__source a:visited,
+  .maintenance-section__source a:hover,
+  .maintenance-section__source a:active,
+  .maintenance-section__source a:focus {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+    text-underline-offset: 2px;
+  }
+
+  /* Items list */
+  .maintenance-section__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  /*
+  Item layout:
+  - Mobile: stacked
+  - Tablet/Desktop: two columns, both TOP-aligned
+*/
+  .maintenance-item__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-3);
+    align-items: start; /* grid items top aligned */
+  }
+
+  .maintenance-item__meta {
+    display: inline-flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    column-gap: var(--space-3);
+    align-self: start;
+  }
+
+  .maintenance-item__body {
+    align-self: start;
+  }
+
+  /* Arrow badge: yellow circle with BLUE arrow */
+  .maintenance-item__icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 9999px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--yellow-8, #ffd774);
+    color: var(--blue-10-primary); /* ✅ arrow blue */
+    line-height: 1;
+  }
+
+  .maintenance-item__icon::before {
+    content: "→";
+    font-size: 12px;
+    line-height: 1;
+    display: block;
+    color: currentColor;
+  }
+
+  /* Tablet/Desktop: two-column grid */
+  @media (min-width: 768px) {
+    .maintenance-item__content {
+      grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+      column-gap: var(--space-12);
+      align-items: start;
+    }
   }
 
   /* Base: mobile + tablet → stack images then content */
@@ -3570,17 +3674,27 @@ body.nav-scroll-locked {
 
   /* Body: white-70 + responsive type */
   .maintenance-section__body {
-    color: var(--white-70);
+    color: var(--white-90);
   }
 
-  /* Items list */
-  .maintenance-section__items {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
+  /* Tablet/Desktop: top-align maintenance item rows (icon/title + body) */
+  @media (min-width: 768px) {
+    /* Each LI is the row container in the markup */
+    .maintenance-section__items > li {
+      align-items: flex-start;
+      align-content: flex-start;
+    }
+
+    /* If the row uses a nested wrapper, force it to top-align too */
+    .maintenance-section__items > li .maintenance-item__content {
+      align-items: flex-start;
+      align-content: flex-start;
+    }
+
+    /* Prevent icon/title column from centering within itself */
+    .maintenance-section__items > li .maintenance-item__meta {
+      align-items: flex-start;
+    }
   }
 
   /* Source */
@@ -3615,7 +3729,7 @@ body.nav-scroll-locked {
   }
 
   /* =========================
-   Maintenance Item
+   Maintenance Item   [NOTE NAME DIFFERENT FROM BASE SECTION]   =
    ========================= */
 
   .maintenance-item {
@@ -3626,6 +3740,7 @@ body.nav-scroll-locked {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     row-gap: var(--space-3);
+    align-items: flex-start;
   }
 
   /* icon + headline row */
@@ -4259,3 +4374,38 @@ body.nav-scroll-locked {
 .has-fixed-nav-offset {
   padding-top: var(--nav-height);
 }
+
+  /* ------------------------------------------- */
+  /* Maintenance section                          */
+  /* ------------------------------------------- */
+
+  /* Safety net: ensure all maintenance copy is white on the dark background */
+  .maintenance-section {
+    color: var(--brand-text-inverse);
+  }
+
+  /* Storyblok rich text can inject nested tags (and sometimes inline colors).
+     Force the rich text blocks to inherit the section color. */
+  .maintenance-section :where(.maintenance-section__body, .maintenance-item__body) {
+    color: inherit;
+  }
+
+  .maintenance-section
+    :where(.maintenance-section__body, .maintenance-item__body)
+    :where(*) {
+    color: inherit !important;
+  }
+
+  /* Keep links readable */
+  .maintenance-section
+    :where(.maintenance-section__body, .maintenance-item__body)
+    a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Yellow circle icon: keep arrow blue-10 */
+  .maintenance-item__icon {
+    color: var(--blue-10-primary);
+  }
